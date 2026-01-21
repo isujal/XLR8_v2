@@ -1,0 +1,1149 @@
+package org.firstinspires.ftc.teamcode.refined_autos_blue;
+
+
+import static org.firstinspires.ftc.teamcode.subsystem.Outtake.extendShooterUsingVelocity;
+
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.AccelConstraint;
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.InstantAction;
+import com.acmerobotics.roadrunner.MinVelConstraint;
+import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
+import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.VelConstraint;
+import com.acmerobotics.roadrunner.ftc.Actions;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.MecanumDrive;
+import org.firstinspires.ftc.teamcode.hardware.Globals;
+import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
+import org.firstinspires.ftc.teamcode.instantCommands.HoodCommand;
+import org.firstinspires.ftc.teamcode.instantCommands.LFCommand;
+import org.firstinspires.ftc.teamcode.instantCommands.RollerCommand;
+import org.firstinspires.ftc.teamcode.instantCommands.ServoCommand;
+import org.firstinspires.ftc.teamcode.instantCommands.ShooterCommand;
+import org.firstinspires.ftc.teamcode.instantCommands.TurretCommand;
+import org.firstinspires.ftc.teamcode.instantCommands.UFCommand;
+import org.firstinspires.ftc.teamcode.sequences.AutoInitSeq;
+import org.firstinspires.ftc.teamcode.subsystem.Feeder;
+import org.firstinspires.ftc.teamcode.subsystem.Intake;
+import org.firstinspires.ftc.teamcode.subsystem.Outtake;
+
+import java.util.Arrays;
+
+@Config
+//@Autonomous(name="Blue Near GPP 🔵")
+//@Deprecated
+public class Blue_Near_GPP extends LinearOpMode {
+    private RobotHardware robot = RobotHardware.getInstance();
+    //Subsystems
+    Outtake outtake ;
+
+    Intake intake ;
+    Feeder feeder ;
+    double actualPos;
+    public static double ramptime = 0.5;
+    public static int counterFeed = 0;
+    public static double c;
+    public static double target = 0;
+    public static double error ;
+    public static double integral;
+    public static double previous_error;
+    public double derivative;
+    public static double pid;
+    public double a;
+
+    public static double kp = 0.02, ki = 0, kd = 0.02;
+
+    public static double yaw = 0;
+    private double totalAngle;
+    private double angle;
+    private double prevAngle;
+    ElapsedTime intakeTimer;
+    public static int intakeTime = 800;
+    public static int intakeTimex = 1500;
+
+    private Thread PIDThread;
+    public static double P = 30;
+    public static double I = 0;
+    public static double D = 0;
+    public static double F = 12.5;
+    //Drive
+    private MecanumDrive drive = null;
+    private static int buffer  = 20;
+    private static int state2  = -1;
+    private static boolean readytoShootFar  = false;
+    private static boolean readytoShootNear  = false;
+    private ElapsedTime timer = new ElapsedTime();
+
+    VelConstraint vel =new MinVelConstraint(Arrays.asList(new TranslationalVelConstraint(30)));
+    AccelConstraint accel0 = new ProfileAccelConstraint(-45,30);
+    AccelConstraint accel = new ProfileAccelConstraint(-45,10);
+    AccelConstraint accel2 = new ProfileAccelConstraint(-45,5);
+
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+        robot.init(hardwareMap, telemetry);
+        intakeTimer = new ElapsedTime();
+
+        intake = new Intake(robot);
+        outtake = new Outtake(robot);
+        feeder = new Feeder(robot);
+
+        Pose2d  startPose = new Pose2d(-38, -55, Math.toRadians(-90));
+        drive = new MecanumDrive(hardwareMap, startPose);
+        robot.shooter.setVelocityPIDFCoefficients(P,I,D,F);
+        actualPos = robot.turretEncoder.getCurrentPosition();
+
+        angle = getContinuousIMU(Globals.currentTurretState);
+        run_turret(angle, 0, 27845, actualPos, telemetry);
+
+        //TODO ===============================================TRAJECTORIES =============================================================
+
+//        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+//        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON)),
+//        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.ON)),
+
+        Action trajectoryAction02 = drive.actionBuilder(new Pose2d(-38, -55,Math.toRadians(-90)))
+                .afterTime(0.1, ()->Actions.runBlocking( new ParallelAction(
+
+                        new InstantAction(()-> new TurretCommand(outtake, Outtake.TurretState.BUFF_RED)),
+                        new InstantAction(()-> new ShooterCommand(outtake, Outtake.ShooterState.RELEASE)),
+                        new InstantAction(()-> new HoodCommand(outtake, Outtake.HoodState.NEAR_END)),
+                        new InstantAction(()-> new ServoCommand(intake, Intake.IntakeServoState.AUTO_IN))
+
+                )))
+                .strafeToLinearHeading(new Vector2d(-5, -16.01), Math.toRadians(-90))
+
+
+                .build();
+
+        Action trajectoryAction2g = drive.actionBuilder(new Pose2d(-5, -16.01,Math.toRadians(-90)))
+
+                .strafeToLinearHeading(new Vector2d(-5,-16), Math.toRadians(-90))
+                .waitSeconds(0.05)
+                .stopAndAdd(()->Actions.runBlocking(new SequentialAction(
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+                        new SleepAction(0.3),
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                        new SleepAction(0.2),
+                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON)),
+                        new SleepAction(0.3),
+                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF)),
+                        new SleepAction(0.3),
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+                        new SleepAction(0.2),
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+
+                        new ParallelAction(
+                                new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.RELEASE)),
+                                new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
+                        ),
+                        new SleepAction(0.3),
+                        new ParallelAction(
+                                new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.ON)),
+                                new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
+                        ),
+                        new SleepAction(0.4),
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON))
+//
+//
+                )))
+                .waitSeconds(0.2)
+
+
+                .build();
+
+        Action trajectoryAction22 = drive.actionBuilder(new Pose2d(-5, -16,Math.toRadians(-90)))
+
+                .strafeToLinearHeading(new Vector2d(-5, -16.01), Math.toRadians(-90))
+
+                .build();
+
+        Action trajectoryAction32 = drive.actionBuilder(new Pose2d(-5, -16.01,Math.toRadians(-90)))
+                .afterTime(0.01,() ->Actions.runBlocking(
+                                new SequentialAction(
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
+                                )
+                        )
+                )
+                .strafeToLinearHeading(new Vector2d(-5, -55), Math.toRadians(-90), vel, accel0)
+
+
+                .build();
+
+
+
+        Action trajectoryAction42 = drive.actionBuilder(new Pose2d(-5, -55.01,Math.toRadians(-90)))
+
+                .strafeToLinearHeading(new Vector2d(-5, -16), Math.toRadians(-90))
+                .build();
+
+
+        Action trajectoryAction4x2 = drive.actionBuilder(new Pose2d(-5, -55,Math.toRadians(-90)))
+                .stopAndAdd(()->
+                        new RollerCommand(intake,Intake.IntakeRollerState.ON))
+                .strafeToConstantHeading(new Vector2d(-5, -55.01))
+                .waitSeconds(0.05)
+                .stopAndAdd(()->Actions.runBlocking(new ParallelAction(
+                        new InstantAction(()-> new RollerCommand(intake,Intake.IntakeRollerState.ON)),
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))
+                )))
+                .waitSeconds(0.1)
+                .stopAndAdd(()->Actions.runBlocking(new ParallelAction(
+                        new InstantAction(()-> new RollerCommand(intake,Intake.IntakeRollerState.OFF)),
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))
+                )))
+                .waitSeconds(0.05)
+                .build();
+
+        Action trajectoryAction52 = drive.actionBuilder(new Pose2d(-5, -16,Math.toRadians(-90)))
+
+                .waitSeconds(0.1)
+                .stopAndAdd(()->Actions.runBlocking(new SequentialAction(
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+                        new SleepAction(0.3),
+
+                        new ParallelAction(
+                                new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
+                        ),
+
+                        new SleepAction(0.2),
+                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF)),
+                        new SleepAction(0.3),
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+                        new SleepAction(0.2),
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+
+                        new ParallelAction(
+                                new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.ON)),
+                                new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
+                        ),
+                        new SleepAction(0.3),
+                        new SleepAction(0.2),
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON))
+
+                )))
+                .waitSeconds(0.2)
+//                .afterTime(0.01,() ->Actions.runBlocking(
+//                                new SequentialAction(
+//                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+//                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
+//                                )
+//                        )
+//                )
+
+//                .waitSeconds(0.1)
+                .build();
+
+
+
+
+        Action trajectoryAction62 = drive.actionBuilder(new Pose2d(-5, -16,Math.toRadians(-90)))
+                .afterTime(0.01,() ->Actions.runBlocking(
+                                new SequentialAction(
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))
+                                )
+                        )
+                )
+                .strafeToLinearHeading(new Vector2d(18, -32), Math.toRadians(-90))
+
+
+                .build();
+
+
+        Action trajectoryAction6x2 = drive.actionBuilder(new Pose2d(18, -32,Math.toRadians(-90)))
+
+                .strafeToLinearHeading(new Vector2d(18, -60), Math.toRadians(-90), vel,accel)
+
+
+                .build();
+
+
+
+        Action trajectoryAction72 = drive.actionBuilder(new Pose2d(18, -60.01,Math.toRadians(-90)))
+
+                .strafeToLinearHeading(new Vector2d(-5, -16), Math.toRadians(-90))
+                .build();
+
+
+        Action trajectoryAction7x2 = drive.actionBuilder(new Pose2d(18, -60,Math.toRadians(-90)))
+                .stopAndAdd(()->
+                        new RollerCommand(intake,Intake.IntakeRollerState.ON))
+                .strafeToConstantHeading(new Vector2d(18, -60.01))
+                .waitSeconds(0.05)
+                .stopAndAdd(()->Actions.runBlocking(new ParallelAction(
+                        new InstantAction(()-> new RollerCommand(intake,Intake.IntakeRollerState.ON)),
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))
+                )))
+                .waitSeconds(0.1)
+                .stopAndAdd(()->Actions.runBlocking(new ParallelAction(
+                        new InstantAction(()-> new RollerCommand(intake,Intake.IntakeRollerState.OFF)),
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))
+                )))
+                .waitSeconds(0.05)
+                .build();
+
+        Action trajectoryAction82 = drive.actionBuilder(new Pose2d(-5, -16,Math.toRadians(-90)))
+
+                .waitSeconds(0.2)
+                .stopAndAdd(()->Actions.runBlocking(new SequentialAction(
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+                        new SleepAction(0.3),
+
+                        new ParallelAction(
+                                new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
+                        ),
+
+                        new SleepAction(0.2),
+                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF)),
+                        new SleepAction(0.3),
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+                        new SleepAction(0.2),
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+
+                        new ParallelAction(
+                                new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.RELEASE)),
+                                new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
+                        ),
+                        new SleepAction(0.3),
+                        new ParallelAction(
+                                new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.ON)),
+                                new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
+                        ),
+                        new SleepAction(0.4),
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON))
+
+                )))
+                .waitSeconds(0.2)
+//                .afterTime(0.01,() ->Actions.runBlocking(
+//                                new SequentialAction(
+//                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+//                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
+//                                )
+//                        )
+//                )
+
+//                .waitSeconds(0.1)
+                .build();
+
+
+
+
+
+        Action trajectoryAction92 = drive.actionBuilder(new Pose2d(-5, -16,Math.toRadians(-90)))
+                .afterTime(0.01,() ->Actions.runBlocking(
+                                new SequentialAction(
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
+                                )
+                        )
+                )
+                .strafeToLinearHeading(new Vector2d(40.5, -32), Math.toRadians(-90))
+
+                .build();
+
+
+        Action trajectoryAction9x2 = drive.actionBuilder(new Pose2d(40.5, -32,Math.toRadians(-90)))
+
+                .strafeToLinearHeading(new Vector2d(40.5, -58), Math.toRadians(-90), vel, accel2)
+
+
+                .build();
+
+
+
+        Action trajectoryAction102 = drive.actionBuilder(new Pose2d(40.5, -58.01,Math.toRadians(-90)))
+
+                .strafeToLinearHeading(new Vector2d(-5, -16), Math.toRadians(-90))
+                .build();
+
+
+        Action trajectoryAction10x2 = drive.actionBuilder(new Pose2d(40.5, -58,Math.toRadians(-90)))
+                .stopAndAdd(()->
+                        new RollerCommand(intake,Intake.IntakeRollerState.ON))
+                .strafeToConstantHeading(new Vector2d(40.5, -58.01))
+                .waitSeconds(0.1)
+                .stopAndAdd(()->Actions.runBlocking(new ParallelAction(
+                        new InstantAction(()-> new RollerCommand(intake,Intake.IntakeRollerState.ON)),
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))
+                )))
+                .waitSeconds(0.1)
+                .stopAndAdd(()->Actions.runBlocking(new ParallelAction(
+                        new InstantAction(()-> new RollerCommand(intake,Intake.IntakeRollerState.OFF)),
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))
+                )))
+                .waitSeconds(0.1)
+                .build();
+
+        Action trajectoryAction112 = drive.actionBuilder(new Pose2d(-5, -16,Math.toRadians(-90)))
+
+                .waitSeconds(0.1)
+                .stopAndAdd(()->Actions.runBlocking(new SequentialAction(
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+                        new SleepAction(0.3),
+
+                        new ParallelAction(
+                                new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
+                        ),
+
+                        new SleepAction(0.2),
+                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF)),
+                        new SleepAction(0.3),
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+                        new SleepAction(0.2),
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+
+                        new ParallelAction(
+                                new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.RELEASE)),
+                                new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
+                        ),
+                        new SleepAction(0.3),
+                        new ParallelAction(
+                                new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.ON)),
+                                new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
+                        ),
+                        new SleepAction(0.4),
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON))
+
+                )))
+                .waitSeconds(0.2)
+//                .afterTime(0.01,() ->Actions.runBlocking(
+//                                new SequentialAction(
+//                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+//                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
+//                                )
+//                        )
+//                )
+
+                .waitSeconds(0.1)
+                .build();
+
+
+
+
+
+
+
+
+
+        PIDThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted() && opModeIsActive()) {
+                try {
+
+                    robot.shooter.setVelocityPIDFCoefficients(P,I,D,F);
+                    extendShooterUsingVelocity(Globals.curretShooterStateVelMode);
+                    actualPos = robot.turretEncoder.getCurrentPosition();
+
+                    angle = getContinuousIMU(Globals.currentTurretState);
+                    run_turret(angle, 0, 27845, actualPos, telemetry);
+
+
+
+                    if (!robot.feederBeam.getState() && counterFeed == 0 && state2 == 3) {
+                        counterFeed += 1;
+
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Intake.IntakeCommand(Intake.IntakeServoState.IN),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.ON),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.ON)
+                                )
+                        );
+
+                    }
+                    if (robot.feederBeam.getState() && counterFeed == 1 && state2 == 3   ) {
+                        counterFeed += 1;
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Intake.IntakeCommand(Intake.IntakeServoState.IN),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.ON),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.ON)
+                                )
+                        );
+                    }
+                    if (counterFeed == 2 && !robot.feederBeam.getState() && state2 == 3) {
+                        counterFeed += 1;
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Intake.IntakeCommand(Intake.IntakeServoState.IN),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.ON),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.ON)
+                                )
+                        );
+                    }
+                    if (counterFeed == 3 && robot.feederBeam.getState() && state2 == 3) {
+                        counterFeed += 1;
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Intake.IntakeCommand(Intake.IntakeServoState.IN),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.ON),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.OFF)
+                                )
+                        );
+
+                    }
+
+                    if (counterFeed == 4 && !robot.intakeBeam.getState() && state2 == 3) {
+                        counterFeed += 1;
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Intake.IntakeCommand(Intake.IntakeServoState.IN),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.ON),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.OFF)
+                                )
+                        );
+                    }
+                    if (counterFeed == 5 && robot.intakeBeam.getState() && state2 == 3) {
+//                motionFlag = true;
+//                motionTimer.reset();
+                        counterFeed = 0;
+//                    gamepad1.rumble(1, 1, 400);
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.OFF),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.OFF)
+                                )
+                        );
+                        state2 = 4;
+
+                    }
+
+
+
+
+
+
+
+
+
+                    if (state2 ==9 && Globals.counterFeed_GPPtoPPG ==0)
+                    {
+//                thirdBallFlag = false;
+//                Actions.runBlocking(IntakeSeq.IntakeStoreAction(intake,outtake,feeder));
+
+//                Globals.counterFeed_GPPtoPGP =;
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Intake.IntakeCommand(Intake.IntakeServoState.IN),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.ON),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.OFF)
+                                )
+                        );
+                    }
+//            if ()
+//            {
+//                Actions.runBlocking(
+//                        new ParallelAction(
+//                                Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+//                                Feeder.LFCommand(Feeder.LowerFeederState.OFF),
+//                                Intake.RollerCommand(Intake.IntakeRollerState.OFF)
+//                        )
+//                );
+//            }
+
+                    if (!robot.intakeBeam.getState() && Globals.counterFeed_GPPtoPPG==0 && state2 ==9){
+                        Globals.counterFeed_GPPtoPPG += 1;
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Intake.IntakeCommand(Intake.IntakeServoState.IN),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.ON),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.OFF)
+                                )
+                        );
+
+                    }
+                    if (robot.intakeBeam.getState() && Globals.counterFeed_GPPtoPPG ==1 && state2 ==9){
+                        Globals.counterFeed_GPPtoPPG += 1;
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Intake.IntakeCommand(Intake.IntakeServoState.IN),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.ON),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.ON)
+                                )
+                        );
+                    }
+                    if (Globals.counterFeed_GPPtoPPG==2 && !robot.feederBeam.getState()&& state2 ==9){
+                        Globals.counterFeed_GPPtoPPG += 1;
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Intake.IntakeCommand(Intake.IntakeServoState.IN),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.ON),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.ON)
+                                )
+                        );
+//                zeroFlag = true;
+                    }
+                    if (Globals.counterFeed_GPPtoPPG==3 && robot.feederBeam.getState()&& state2 ==9){
+                        Globals.counterFeed_GPPtoPPG += 1;
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Intake.IntakeCommand(Intake.IntakeServoState.IN),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.ON),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.ON)
+                                )
+                        );
+
+                    }
+
+                    if (Globals.counterFeed_GPPtoPPG==4 && !robot.feederBeam.getState()&& state2 ==9){
+//                        Globals.counterFeed_GPPtoPPG += 1;
+                        Globals.counterFeed_GPPtoPPG = 0;
+                        gamepad1.rumble(1,1,400);
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.OFF),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.OFF)
+                                )
+                        );
+                        state2 =10;
+
+                    }
+
+
+
+
+
+                    if (!robot.feederBeam.getState() && counterFeed == 0 && state2 == 15) {
+                        counterFeed += 1;
+
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Intake.IntakeCommand(Intake.IntakeServoState.IN),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.ON),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.ON)
+                                )
+                        );
+
+                    }
+                    if (robot.feederBeam.getState() && counterFeed == 1 && state2 == 15   ) {
+                        counterFeed += 1;
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Intake.IntakeCommand(Intake.IntakeServoState.IN),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.ON),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.ON)
+                                )
+                        );
+                    }
+                    if (counterFeed == 2 && !robot.feederBeam.getState() && state2 == 15) {
+                        counterFeed += 1;
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Intake.IntakeCommand(Intake.IntakeServoState.IN),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.ON),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.ON)
+                                )
+                        );
+                    }
+                    if (counterFeed == 3 && robot.feederBeam.getState() && state2 == 15) {
+                        counterFeed += 1;
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Intake.IntakeCommand(Intake.IntakeServoState.IN),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.ON),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.OFF)
+                                )
+                        );
+
+                    }
+
+                    if (counterFeed == 4 && !robot.intakeBeam.getState() && state2 == 15) {
+                        counterFeed += 1;
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Intake.IntakeCommand(Intake.IntakeServoState.IN),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.ON),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.OFF)
+                                )
+                        );
+                    }
+                    if (counterFeed == 5 && robot.intakeBeam.getState() && state2 == 15) {
+//                motionFlag = true;
+//                motionTimer.reset();
+                        counterFeed = 0;
+//                    gamepad1.rumble(1, 1, 400);
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.OFF),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.OFF)
+                                )
+                        );
+                        state2 = 16;
+
+                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    try {
+                        if (robot.shooter.getVelocity()>(Globals.shooterFarVel-buffer)){
+                            readytoShootFar=true;
+                        }
+                        else if(robot.shooter.getVelocity()<(Globals.shooterFarVel-buffer)){
+                            readytoShootFar=false;
+                        }
+                        if (robot.shooter.getVelocity()>(Globals.shooterNearVel-buffer)){
+                            readytoShootNear=true;
+                        }
+                        else if(robot.shooter.getVelocity()<(Globals.shooterNearVel-buffer)){
+                            readytoShootNear=false;
+                        }
+                        robot.outtakeBeamStore = robot.outtakeBeam.getState();
+                        robot.intakeBeamStore = robot.intakeBeam.getState();
+                        robot.feederBeamState = robot.feederBeam.getState();
+
+                    }
+                    catch (Exception e){
+                        telemetry.addLine("May be thread error");
+                    }
+                    telemetry.addData("ob",robot.outtakeBeamStore);
+                    telemetry.addData("ib", robot.intakeBeamStore);
+                    telemetry.addData("fb",robot.feederBeamState);
+
+                    telemetry.addData("state2",state2);
+                    telemetry.addData("counterFeed",counterFeed);
+
+                    telemetry.addData("ob",robot.outtakeBeam.getState());
+                    telemetry.addData("fb",robot.feederBeam.getState());
+                    telemetry.addData("ib",robot.intakeBeam.getState());
+                    telemetry.addData("ready to shoot",readytoShootFar);
+                    telemetry.addData("ready to shoot",Globals.curretShooterStateVelMode);
+
+                    /// Your Call For Thread
+                    telemetry.addData("Shooter current  ", robot.shooter.getCurrent(CurrentUnit.AMPS));
+                    telemetry.addData("Shooter Velocity  ", robot.shooter.getVelocity());
+
+                    telemetry.update();
+
+
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+
+
+        // TODO INIT
+        while (opModeInInit() )
+        {
+            intakeTimer.reset();
+            Globals.shooterMode=true;
+            actualPos = robot.turretEncoder.getCurrentPosition();
+
+            angle = getContinuousIMU(Globals.currentTurretState);
+            run_turret(angle, 0, 27845, actualPos, telemetry);
+            telemetry.addLine("ROBOT INIT MODE");
+            Actions.runBlocking(
+
+                    AutoInitSeq.InitActionNearBlue(intake, outtake, feeder)
+
+            );
+
+            readytoShootFar=false;
+            readytoShootNear=false;
+            state2=-1;
+            telemetry.addData("ready to shoot",readytoShootFar);
+            telemetry.addData("ready to shoot",readytoShootNear);
+            telemetry.addData("state2",state2);
+            telemetry.addData("counterFeed",counterFeed);
+            telemetry.addData("ob",robot.outtakeBeam.getState());
+            telemetry.addData("fb",robot.feederBeam.getState());
+            telemetry.addData("ib",robot.intakeBeam.getState());
+            telemetry.addData("VEL",robot.shooter.getVelocity());
+            telemetry.addData("DIFF",Globals.shooterFarVel-buffer);
+
+            telemetry.addData("x", drive.localizer.getPose().position.x);// drive.pose.position.x);
+            telemetry.addData("y", drive.localizer.getPose().position.y);
+            telemetry.addData("heading (deg)", Math.toDegrees(drive.localizer.getPose().heading.toDouble()));//  drive.pose.heading.toDouble()));
+//            telemetry.addData("Navx heading (deg)", TwoDeadWheelLocalizer.robotHeading);
+            telemetry.update();
+            counterFeed=0;
+        }
+
+        waitForStart();
+        //pidThread.start();
+        PIDThread.start();
+
+
+        while (opModeIsActive() && !isStopRequested()) {
+//            actualPos = robot.turretEncoder.getCurrentPosition();
+//            robot.shooter.setVelocityPIDFCoefficients(P,I,D,F);
+
+            //TODO preload Shoot Pose
+            Globals.shooterMode=true;
+
+            if (state2 == -1) {
+                Actions.runBlocking(
+                        new SequentialAction(
+                                trajectoryAction02
+                        )
+                );
+                state2 = 0;
+            }
+            if (state2 == 0) {
+                Actions.runBlocking(
+                        new SequentialAction(
+                                trajectoryAction2g
+                        )
+                );
+                state2 = 1;
+            }
+
+
+            //TODO preload Shoot 1
+            if(state2 == 1){
+                Actions.runBlocking(
+                        new SequentialAction(
+                                trajectoryAction22
+                        )
+                );
+                state2 = 2;
+            }
+
+
+            //TODO preload Shoot 3
+            if (state2==2) {
+
+                Actions.runBlocking(
+                        new SequentialAction(
+                                new InstantAction(()-> state2 = 3),
+                                trajectoryAction32
+                        )
+                );
+                intakeTimer.reset();
+
+            }
+
+            //TODO preload Shoot 2
+
+            if (state2 == 3 && intakeTimer.milliseconds()>intakeTime)
+            {
+                counterFeed = 0;
+                state2 = 4;
+                intakeTimer.reset();
+            }
+
+
+            if (state2==4) {
+                Actions.runBlocking(
+                        new SequentialAction(
+                                trajectoryAction4x2
+
+                        )
+                );
+                state2 = 5;
+            }
+
+            if (state2==5) {
+                Actions.runBlocking(
+                        new SequentialAction(
+                                trajectoryAction42
+                        )
+                );
+
+                state2 = 6;
+            }
+
+            if (state2==6) {
+                Actions.runBlocking(
+                        new SequentialAction(
+                                trajectoryAction52
+                        )
+                );
+
+                state2 = 7;
+            }
+
+
+
+            if (state2==7) {
+
+                Actions.runBlocking(
+                        new SequentialAction(
+                                trajectoryAction62
+                        )
+                );
+                intakeTimer.reset();
+                state2 = 8;
+
+            }
+
+
+
+
+
+            if (state2==8) {
+
+                Actions.runBlocking(
+                        new SequentialAction(
+                                new InstantAction(()-> state2 =9),
+                                trajectoryAction6x2
+                        )
+                );
+                intakeTimer.reset();
+
+            }
+
+            //TODO preload Shoot 2
+
+            if (state2 == 9 && intakeTimer.milliseconds()>intakeTime)
+            {
+                Globals.counterFeed_GPPtoPPG = 0;
+                state2 = 10;
+                intakeTimer.reset();
+            }
+
+
+            if (state2==10) {
+                Actions.runBlocking(
+                        new SequentialAction(
+                                trajectoryAction7x2
+
+                        )
+                );
+                state2 = 11;
+            }
+
+            if (state2==11) {
+                Actions.runBlocking(
+                        new SequentialAction(
+                                trajectoryAction72
+                        )
+                );
+
+                state2 = 12;
+            }
+
+            if (state2==12) {
+                Actions.runBlocking(
+                        new SequentialAction(
+                                trajectoryAction82
+                        )
+                );
+
+                state2 = 13;
+            }
+
+
+
+
+
+
+            if (state2==13) {
+
+                Actions.runBlocking(
+                        new SequentialAction(
+                                trajectoryAction92
+                        )
+                );
+                intakeTimer.reset();
+                state2 = 14;
+
+            }
+
+            if (state2==14) {
+
+                Actions.runBlocking(
+                        new SequentialAction(
+                                new InstantAction(()-> state2 =15),
+                                trajectoryAction9x2
+                        )
+                );
+                intakeTimer.reset();
+
+            }
+
+            //TODO preload Shoot 2
+
+            if (state2 == 15 && intakeTimer.milliseconds()>intakeTime)
+            {
+               counterFeed = 0;
+                state2 = 16;
+                intakeTimer.reset();
+            }
+
+
+            if (state2==16) {
+                Actions.runBlocking(
+                        new SequentialAction(
+                                trajectoryAction10x2
+
+                        )
+                );
+                state2 = 17;
+            }
+
+            if (state2==17) {
+                Actions.runBlocking(
+                        new SequentialAction(
+                                trajectoryAction102
+                        )
+                );
+
+                state2 = 18;
+            }
+
+            if (state2==18) {
+                Actions.runBlocking(
+                        new SequentialAction(
+                                trajectoryAction112
+                        )
+                );
+
+                state2 = 19;
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//            PIDThread.interrupt();
+            telemetry.addData("ready to shoot Far",readytoShootFar);
+            telemetry.addData("ready to shoot Near",readytoShootNear);
+            telemetry.addData("x", drive.localizer.getPose().position.x);// drive.pose.position.x);
+            telemetry.addData("y", drive.localizer.getPose().position.y);
+            telemetry.addData("VEL",robot.shooter.getVelocity());
+            telemetry.addData("VEL",robot.shooter.getVelocity());
+            telemetry.addData("state2",state2);
+            telemetry.addData("counterFeed",counterFeed);
+
+            telemetry.addData("ob",robot.outtakeBeam.getState());
+            telemetry.addData("fb",robot.feederBeam.getState());
+            telemetry.addData("ib",robot.intakeBeam.getState());
+            telemetry.addData("DIFF",Globals.shooterFarVel-buffer);
+            telemetry.addData("heading (deg)", Math.toDegrees(drive.localizer.getPose().heading.toDouble()));//  drive.pose.heading.toDouble()));
+//            telemetry.addData("Navx heading (deg)", TwoDeadWheelLocalizer.robotHeading);
+            telemetry.update();
+
+//            if (isStopRequested()) {
+//                PIDThread.interrupt();
+//            }
+        }
+
+    }
+    public static double map(double x, double inMin, double inMax, double outMin, double outMax) {
+        return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+    }
+    public double  getContinuousIMU(double currentAngle) {
+        double delta = currentAngle - prevAngle;
+
+        // Handle wrap-around
+        if (delta > 180) {
+            delta -= 360;
+        } else if (delta < -180) {
+            delta += 360;
+        }
+
+        totalAngle += delta;
+        prevAngle = currentAngle;
+
+        return totalAngle;
+    }
+
+    public double run_turret(double imu, double min_in_pos, double max_in_pos, double pose, Telemetry telemetry){
+        pid = 0;
+
+        c = map(pose, min_in_pos, max_in_pos, 0, 360);
+
+        if (imu < 0){
+            c = -c;
+        }
+
+        double target = imu;
+
+        double derivative = 0;
+        if(imu < 0){
+            telemetry.addLine("neagtive heading");
+            error = c + target;
+//            error = -error;
+            integral = integral + error;
+            derivative = error - previous_error;
+
+            previous_error = error;
+            pid = kp*error + kd*derivative + ki*integral;
+            robot.turret1.setPower(-pid);
+            robot.turret2.setPower(pid);
+            return -pid;
+
+        }
+        else {
+            telemetry.addLine("positive heading");
+
+            error = target - c;
+//            error = -error;
+            integral = integral + error;
+            derivative = error - previous_error;
+
+            previous_error = error;
+            pid = kp*error + kd*derivative + ki*integral;
+            robot.turret1.setPower(-pid);
+            robot.turret2.setPower(pid);
+            return -pid;
+        }
+    }
+
+
+
+}
