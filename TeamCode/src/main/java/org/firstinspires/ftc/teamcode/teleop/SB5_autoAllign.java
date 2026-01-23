@@ -40,6 +40,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.FSM.FeedSequenceFSM;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 //import org.firstinspires.ftc.teamcode.Utils.utilities.ServoMapper;
 import org.firstinspires.ftc.teamcode.hardware.Globals;
@@ -69,39 +70,35 @@ import java.util.List;
 public class SB5_autoAllign extends LinearOpMode {
     private static RobotHardware robot=RobotHardware.getInstance();
 
-    public static double pose_x;
-    public static double pose_y;
-    public static double pose_heading;
-    public static double servo_low = 0.82;
-    public static double servo_high = 0.88;
-//    public List<LynxModule> allHubs;
-    ElapsedTime intakeTimer;
-    ElapsedTime motionTimer;
-    ElapsedTime secondBallTimer;
-    ElapsedTime feedButtonTimer;
+    public static double pose_x,pose_y,pose_heading;
+    public static double servo_low = 0.88; //0.88 <- 0.8
+    public static double servo_high = 0.9;//0.9 <- 0.88
+    public List<LynxModule> allHubs;
+    ElapsedTime intakeTimer,motionTimer,secondBallTimer,feedButtonTimer;
+    private FeedSequenceFSM feedSequenceFSM;
     private Intake intake;
     private Outtake outtake;
     private Feeder feeder;
     private MecanumDrive drive;
     double pos;
+    double pos2;
+    double pos3;
     private FtcDashboard dashboard;
+
+
+
+
+
 
     //TODO ---------------------------TAG CONSTANTS
 
-    public static double tagID_tag, x_tag, y_tag, z_tag, val_tag = 0;
-    public static double kP_tag = 0.025;
-    public static double kI_tag = 0;
-    public static double kD_tag = 0.25;
-    public static double Integral_tag = 0;
-    public static double LastError_tag = 0;
+    public static double tagID_tag, x_tag, y_tag, z_tag, val_tag = 0,kP_tag = 0.025,kI_tag = 0,kD_tag = 0.25,Integral_tag = 0,LastError_tag = 0;
     public static int Target_tag = 0;
     public double Power_tag = 0;
-    public static boolean allThrre_tag = false;
     public static boolean April_tag = true;
-    public int flagin_tag = 0;
     public static boolean bFlag_tag = false;
     public static boolean farFlag ;
-
+    public static boolean nearFlag ;
 
     //TODO ---------------------------COLOR Sensor and Beam Breaks
 
@@ -115,7 +112,8 @@ public class SB5_autoAllign extends LinearOpMode {
 
 
     //TODO -------------------Turret Constants--------
-
+//    public static boolean turretActuate =false;
+    public static double required_target = 45;
     public static double c;
     public static double target = 0;
     public static double error ;
@@ -124,10 +122,10 @@ public class SB5_autoAllign extends LinearOpMode {
     public double derivative;
     public static double pid;
     public double a;
-    public static boolean turretActuate =false;
-    public static double required_target = 45;
+    public static double turnBias = 0.0; // units SAME as z_tag
 
-    public static double kp = 0.015, ki = 0, kd = 0.03;
+
+    public static double kp = 0.02, ki = 0, kd = 0.02;
 
     public static double yaw = 0;
     private double totalAngle;
@@ -136,10 +134,10 @@ public class SB5_autoAllign extends LinearOpMode {
 
     //TODO -------------------Shooter Constants--------
 
-    public static double P = 130;
+    public static double P = 100;
     public static double I = 0;
     public static double D = 0;
-    public static double F = 12.5;
+    public static double F = 12.65;
     double actualPos;
     //TODO -------------------Flags & Constants----------
     public static double  strafe, turn,forward;
@@ -155,6 +153,8 @@ public class SB5_autoAllign extends LinearOpMode {
     public static double thresh= 100;
     public static int counter= 0;
     public static int counterFeed= 0;
+    public static boolean eg= false ;
+
     public static int counterShootFeed= 0;
     public static int thirdFeed= 0;
     public static boolean currentOBeamstate= false;
@@ -194,22 +194,20 @@ public class SB5_autoAllign extends LinearOpMode {
     AprilTagDetection tag_tag;
     @Override
     public void runOpMode() throws InterruptedException {
-
         RobotHardware robot = RobotHardware.getInstance();
         robot.init(hardwareMap,telemetry);
         intakeTimer = new ElapsedTime();
         motionTimer = new ElapsedTime();
         secondBallTimer = new ElapsedTime();
         feedButtonTimer = new ElapsedTime();
-
-//        allHubs = hardwareMap.getAll(LynxModule.class);
-//        for (LynxModule hub : allHubs) {
-//            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
-//        }
-
+        allHubs = hardwareMap.getAll(LynxModule.class);
+        for (LynxModule hub : allHubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        }
         intake = new Intake(robot);
         outtake = new Outtake(robot);
         feeder = new Feeder(robot);
+        feedSequenceFSM = new FeedSequenceFSM();
         dashboard = FtcDashboard.getInstance();
         TelemetryPacket packet = new TelemetryPacket();
 
@@ -231,6 +229,7 @@ public class SB5_autoAllign extends LinearOpMode {
                 .setDrawCubeProjection(true)
                 .setDrawTagID(true)
                 .setDrawTagOutline(true)
+//                .setLensIntrinsics(445.035,445.035,333.909,231.625)
                 // x position of the camera from the centre of the robot  ==  -2.36
                 // y position of the camera from the centre of the robot  ==  +2.44
                 // z position of the camera from the centre of the robot  ==
@@ -244,32 +243,68 @@ public class SB5_autoAllign extends LinearOpMode {
                 .addProcessor(tagProcessor)
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1")) // Webcam 1 name is always constant
                 .setCameraResolution(new Size(640, 480))
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
 
+
+        // TODO: Thread Start 🎈
 
         Thread Campid = new Thread(()->{
             while (!Thread.currentThread().isInterrupted() && opModeIsActive()){
                 try {
+//                    if (tagID == 20)
+//                    {
+//                        if (z_tag>0.2)
+//                        {
+//                            turnBias = -3;
+//                        }
+//                        if (z_tag<-0.2)
+//                        {
+//                            turnBias = 21;
+//                        }
+//                    }
+//
+//
+//                    if (tagID == 24)
+//                    {
+//                        if (z_tag>0.2)
+//                        {
+//                            turnBias = -7;
+//                        }
+//                        if (z_tag<-0.2)
+//                        {
+//                            turnBias = 16;
+//                        }
+//                    }
+
+
+
+
+                    val_tag = Aprilpid(z_tag - turnBias);
+
                     val_tag = Aprilpid(z_tag);
 
-                    if (y_tag>140)
+                    if (y_tag>135)
                     {
                         robot.hood.setPosition(pos);
                         farFlag = true;
+                        nearFlag = false;
                     }
 
-//                    else if (y_tag > 50 && y_tag < 115)
-//                    {
-//                        robot.hood.setPosition(pos);
-//                        farFlag = true;
-//                    }
+
+                    else if (y_tag > 20 && y_tag < 100)
+                    {
+                        farFlag =false;
+                        nearFlag = true;
+                        robot.shooter.setVelocity(pos2);
+                        robot.hood.setPosition(pos3);
+
+                    }
 
                     else {
                         farFlag = false;
+                        nearFlag = false;
                     }
-
-                    angle = getContinuousIMU(Globals.currentTurretState);
-                    run_turret(angle, 0, 27845, actualPos, telemetry);
 
                 }
                 catch (Exception e) {
@@ -279,6 +314,22 @@ public class SB5_autoAllign extends LinearOpMode {
             }
             sleep(10);
         });
+
+
+        Thread TurretPID = new Thread(()->{
+            while (!Thread.currentThread().isInterrupted() && opModeIsActive()){
+                try {
+                    angle = getContinuousIMU(Globals.currentTurretState);
+                    run_turret(angle, 0, 27845, actualPos, telemetry);
+                }
+                catch (Exception e) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException(e);
+                }
+            }
+            sleep(10);
+        });
+
 
 
         telemetry.addData("Status", "Initialized");
@@ -299,25 +350,28 @@ public class SB5_autoAllign extends LinearOpMode {
             motionTimer.reset();
             secondBallTimer.reset();
             feedButtonTimer.reset();
-            turretActuate =false;
-
+//            turretActuate =false;
+            eg = false;
 
             motionFlag = false;
-//            drive.lazyImu.get().resetYaw();
             drive.navxMicro.initialize();
-//            for (LynxModule hub : allHubs) {
-//                hub.clearBulkCache();
-//            }
+
+//            drive.lazyImu.get().resetYaw();
+            for (LynxModule hub : allHubs) {
+                hub.clearBulkCache();
+            }
             runningActions = updateAction();
             runningActions.add(InitSeq.InitAction(intake,outtake,feeder));
 
             if (gamepad1.a)
             {
                 tagID = 20;
+                Target_tag = 0;
             }
             if (gamepad1.b)
             {
                 tagID = 24;
+                Target_tag = 0;
             }
 
             actualPos = robot.turretEncoder.getCurrentPosition();
@@ -329,16 +383,15 @@ public class SB5_autoAllign extends LinearOpMode {
 
         waitForStart();
         loopTimer.reset();
-
+        TurretPID.start();
         Campid.start();
 
         while (opModeIsActive()){
             loopTimer.reset();
 
-//            for (LynxModule hub : allHubs) {
-//                hub.clearBulkCache();
-//            }
-
+            for (LynxModule hub : allHubs) {
+                hub.clearBulkCache();
+            }
             Orientation orientation = drive.navxMicro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
             Yaw = Math.toDegrees(orientation.firstAngle);
@@ -347,10 +400,11 @@ public class SB5_autoAllign extends LinearOpMode {
 
             Globals.turret_imu_track= required_target -YawNavx;
 
-
             // Cap both values between -100 and +100
             Globals.turret_imu_track = clamp(Globals.turret_imu_track, -85, 85);
             Globals.currentTurretState = clamp(Globals.currentTurretState, -85, 85);
+
+
             pose_x = drive.localizer.getPose().position.x;
             pose_y = drive.localizer.getPose().position.y;
             pose_heading = drive.localizer.getPose().heading.toDouble();
@@ -368,6 +422,8 @@ public class SB5_autoAllign extends LinearOpMode {
                 y_tag = tag_tag.ftcPose.y;
                 z_tag = tag_tag.ftcPose.z;
                 pos = map (y_tag, 142,177,servo_low,servo_high);
+                pos2 = map (y_tag, 30,100,1250,1450); //1400
+                pos3 = map (robot.shooter.getVelocity(), 1250,1450,1,0.91);
 
 
                 April_tag = true;
@@ -399,8 +455,6 @@ public class SB5_autoAllign extends LinearOpMode {
                     ),
                     -gamepad1.right_stick_x*turn
             ));
-//            currentOBeamstate = robot.outtakeBeam.getState();
-
 
 //            drive.driveFieldCentric(-gamepad1.left_stick_x,
 //                    -gamepad1.left_stick_y,
@@ -408,10 +462,6 @@ public class SB5_autoAllign extends LinearOpMode {
 //                    botHeading*0.8);
 //            drive.updatePoseEstimate();
 
-
-//            if (lastOBeamstate != currentOBeamstate){
-//                OBeamcounter += 1;
-//            }
 //            telemetry.update();
 
             previousGamepad1.copy(currentGamepad1);
@@ -425,23 +475,8 @@ public class SB5_autoAllign extends LinearOpMode {
             // Intake and Store Artifacts
 
             //TODO: BASIC
-//            if (gamepad1.a)
-//            {
-//
-//                trajectoryAction2 = drive.actionBuilder(
-//
-//                                new Pose2d(pose_x, pose_y,Math.toRadians(pose_heading)))
-//
-//                        .strafeToLinearHeading(new Vector2d(-98, -98), Math.toRadians(55))
-//
-//                        .build();
-//                Actions.runBlocking(
-//                        new SequentialAction(
-//                                trajectoryAction2
-//                        ));
-//            }
 
-            drive.updatePoseEstimate();
+//            drive.updatePoseEstimate();
             if (currentGamepad1.right_trigger > 0)
             {
                 bFlag_tag = true;
@@ -465,12 +500,12 @@ public class SB5_autoAllign extends LinearOpMode {
 
             if (gamepad2.dpad_left)
             {
-                required_target = 40;
+                Globals.currentTurretState += 2;
             }
 
             if (gamepad2.dpad_right)
             {
-                required_target =-45;
+                Globals.currentTurretState -= 2;
             }
 
             if (gamepad2.dpad_up)
@@ -478,26 +513,27 @@ public class SB5_autoAllign extends LinearOpMode {
                 required_target = Globals.turretInit;
             }
 
-            if (gamepad1.start){
-                turretActuate=true;
-            }
-            if(turretActuate){
-                runningActions.add(
-                        new SequentialAction(
-                                Outtake.TurretCommand(Outtake.TurretState.IMU_TRACK)
-                        )
-                );
-            }
-            if(!turretActuate){
-                runningActions.add(
-                        new SequentialAction(
-                                Outtake.TurretCommand(Outtake.TurretState.INIT)
-                        )
-                );
-            }
-            if (gamepad1.share){
-                turretActuate=false;
-            }
+//            if (gamepad1.start){
+//                turretActuate=true;
+//            }
+//            if(turretActuate){
+//                runningActions.add(
+//                        new SequentialAction(
+//                                Outtake.TurretCommand(Outtake.TurretState.IMU_TRACK)
+//                        )
+//                );
+//            }
+//            if(!turretActuate){
+//                runningActions.add(
+//                        new SequentialAction(
+//                                Outtake.TurretCommand(Outtake.TurretState.INIT)
+//                        )
+//                );
+//            }
+//            if (gamepad1.share){
+//                turretActuate=false;
+//            }
+
 
             if (gamepad1.touchpad)
             {
@@ -535,7 +571,6 @@ public class SB5_autoAllign extends LinearOpMode {
             {
                 secondBallTimer.reset();
                 secondBallFlag = true;
-
             }
             if(secondBallFlag)
             {
@@ -579,7 +614,6 @@ public class SB5_autoAllign extends LinearOpMode {
                                 Outtake.ShooterCommand(Outtake.ShooterState.NEAR)
                         )
                 );
-
                 shoot1 = false;
                 shoot2 = true;
             }
@@ -594,7 +628,6 @@ public class SB5_autoAllign extends LinearOpMode {
                         )
                 );
                 zeroFlag = false;
-
             }
             if (counterFeed==5 && robot.intakeBeam.getState()&& intakeFlag){
 
@@ -612,17 +645,87 @@ public class SB5_autoAllign extends LinearOpMode {
                 );
                 intakeFlag = false;
             }
+            if (currentGamepad1.dpad_up && !previousGamepad1.dpad_up){
+                sequenceFlag = !sequenceFlag;
+            }
 
+
+            if (sequenceFlag && !farFlag)
+            {
+                Actions.runBlocking(
+                        new SequentialAction(
+                                new ParallelAction(
+                                        new InstantAction(()-> counterB = 0),
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+                                        new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
+                                ),
+
+                                new SleepAction(0.2), //0.3
+                                new ParallelAction(
+                                        new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON)),
+                                        new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
+                                ),
+                                new SleepAction(0.1), //0.3
+                                new ParallelAction(
+                                        new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+                                        new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.ON))
+                                ),
+                                new SleepAction(0.2), //0.2
+                                new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                new SleepAction(0.2), //0.3
+                                new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+                                new SleepAction(0.5),
+                                new InstantAction(()-> sequenceFlag = false),
+                                new InstantAction(()-> intakeFlag = true),
+                                new InstantAction(()-> counterFeed = 0)
+                        )
+                );
+            }
+
+
+            if (sequenceFlag && farFlag)
+            {
+                Actions.runBlocking(
+                        new SequentialAction(
+                                new ParallelAction(
+                                        new InstantAction(()-> counterB = 0),
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+                                        new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
+                                ),
+                                new SleepAction(0.3), //0.3
+                                new ParallelAction(
+                                        new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
+                                ),
+                                new SleepAction(0.5), //0.3
+                                new ParallelAction(
+                                        new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+                                        new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.ON))
+                                ),
+                                new SleepAction(0.1), //0.3
+                                new ParallelAction(
+                                        new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                        new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.ON))
+                                ),
+                                new SleepAction(0.8), //0.3
+                                new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+                                new SleepAction(0.5),
+                                new InstantAction(()-> sequenceFlag = false),
+                                new InstantAction(()-> intakeFlag = true),
+                                new InstantAction(()-> counterFeed = 0)
+                        )
+                );
+            }
 
             if (counterB > 3)
             {
                 counterB =0;
             }
 
-            if (currentGamepad1.right_bumper && !previousGamepad1.right_bumper && counterFeed <=2){
+            if (currentGamepad1.b && !previousGamepad1.b && counterFeed <=2){
 
-                counterB += 1;
-
+                counterB +=1;
                 feedButtonTimer.reset();
                 feedButtonFlag = false;
             }
@@ -630,17 +733,16 @@ public class SB5_autoAllign extends LinearOpMode {
             if(counterB == 1)
             {
                 feedFlag = true;
-
             }
-            if (feedFlag && previousGamepad1.right_bumper)
+            if (feedFlag && previousGamepad1.b)
             {
                 feedButtonFlag = true;
             }
-            else if (!feedFlag && previousGamepad1.right_bumper)
+            else if (!feedFlag && previousGamepad1.b)
             {
                 feedButtonFlag = true;
             }
-            if (feedButtonFlag && counterB == 1)
+            if (feedButtonFlag && counterB ==1)
             {
                 if (feedButtonTimer.milliseconds()>rampTime)
                 {
@@ -650,7 +752,6 @@ public class SB5_autoAllign extends LinearOpMode {
                             )
                     );
                     feedButtonFlag = false;
-                    counterB = 2;
                     thirdBallFlag = true;
                     motionTimer.reset();
                     motionFlag = false;
@@ -663,9 +764,10 @@ public class SB5_autoAllign extends LinearOpMode {
                             )
                     );
                 }
+
             }
 
-            if (feedButtonFlag && counterB == 2)
+            if (feedButtonFlag && counterB ==2 )
             {
                 if (feedButtonTimer.milliseconds()>rampTime)
                 {
@@ -676,7 +778,6 @@ public class SB5_autoAllign extends LinearOpMode {
                     );
                     feedButtonFlag = false;
                     intakeFlag = true;
-                    counterB = 3;
 
                 }
                 else {
@@ -729,7 +830,7 @@ public class SB5_autoAllign extends LinearOpMode {
             }
 
 
-            if (feedButtonFlag && counterFeed == 2 && previousGamepad1.right_bumper && counterB ==3)
+            if (feedButtonFlag && counterFeed == 2 && previousGamepad1.b && counterB ==3)
             {
 
 
@@ -744,71 +845,75 @@ public class SB5_autoAllign extends LinearOpMode {
 
 
 
-            if (currentGamepad1.dpad_up && !previousGamepad1.dpad_up){
+//            if (gamepad1.dpad_up){
+//                counterFeed = 0;+
+//                intakeFlag = false;
+//            }
 
-                sequenceFlag = !sequenceFlag;
-
+            if(currentGamepad1.dpad_down && !previousGamepad1.dpad_down)
+            {
+                eg = !eg;
             }
 
-
-            if (sequenceFlag && !farFlag)
+            if (eg)
             {
-                Actions.runBlocking(
-                        new SequentialAction(
-                                new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
-                                new SleepAction(0.3), //0.3
-                                new ParallelAction(
-                                        new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
-                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
-                                ),
-                                new SleepAction(0.3), //0.3
-                                new ParallelAction(
-                                        new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
-                                        new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.ON))
-                                ),
-                                new SleepAction(0.2), //0.3
-                                new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
-                                new SleepAction(0.3), //0.3
-                                new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
-                                new SleepAction(0.5),
-                                new InstantAction(()-> sequenceFlag = false)
+                robot.endgame.setPosition(Globals.eg_release);
+                runningActions.add(
+                        new ParallelAction(
+                                new InstantAction(()-> intakeFlag = false),
+                                Outtake.ShooterCommand(Outtake.ShooterState.OFF),
+                                Intake.IntakeCommand(Intake.IntakeServoState.INIT),
+                                Intake.RollerCommand(Intake.IntakeRollerState.OFF),
+                                Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                Feeder.LFCommand(Feeder.LowerFeederState.OFF),
+                                Outtake.TurretCommand(Outtake.TurretState.INIT)
                         )
                 );
             }
-
-
-            if (sequenceFlag && farFlag)
+            else
             {
-                Actions.runBlocking(
-                        new SequentialAction(
-                                new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
-                                new SleepAction(0.3), //0.3
-                                new ParallelAction(
-                                        new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
-                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
-                                ),
-                                new SleepAction(0.5), //0.3
-                                new ParallelAction(
-                                        new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
-                                        new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.ON))
-                                ),
-                                new SleepAction(0.1), //0.3
-                                new ParallelAction(
-                                        new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
-                                        new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.ON))
-                                ),
-                                new SleepAction(0.8), //0.3
-                                new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
-                                new SleepAction(0.5),
-                                new InstantAction(()-> sequenceFlag = false)
-                        )
-                );
+                robot.endgame.setPosition(Globals.eg_init);
             }
 
-            if(currentGamepad1.b && !previousGamepad1.b)
+
+
+//            if (sequenceFlag && farFlag)
+//            {
+//                Actions.runBlocking(
+//                        new SequentialAction(
+//                                new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+//                                new SleepAction(0.3), //0.3
+//                                new ParallelAction(
+//                                        new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+//                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
+//                                ),
+//                                new SleepAction(0.5), //0.3
+//                                new ParallelAction(
+//                                        new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+//                                        new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.ON))
+//                                ),
+//                                new SleepAction(0.1), //0.3
+//                                new ParallelAction(
+//                                        new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+//                                        new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.ON))
+//                                ),
+//                                new SleepAction(0.8), //0.3
+//                                new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+//                                new SleepAction(0.5),
+//                                new InstantAction(()-> sequenceFlag = false)
+//                        )
+//                );
+//            }
+
+            if(currentGamepad1.right_bumper && !previousGamepad1.right_bumper)
             {
                 singleShoot = !singleShoot;
                 counterFeed = 0;
+            }
+
+            if (currentGamepad2.a && !previousGamepad2.a)
+            {
+                intakeFlag = false;
             }
 //
             if(singleShoot)
@@ -820,9 +925,7 @@ public class SB5_autoAllign extends LinearOpMode {
                                 new ParallelAction(
                                         Feeder.UFCommand(Feeder.UpperFeederState.OFF),
                                         new InstantAction(()-> singleShoot = false)
-
                                 )
-
                         )
                 );
             }
@@ -856,59 +959,38 @@ public class SB5_autoAllign extends LinearOpMode {
                                     Feeder.LFCommand(Feeder.LowerFeederState.ON),
                                     Intake.RollerCommand(Intake.IntakeRollerState.RELEASE)
                             )
-
                     );
                 }
             }
 
 
-//            if (gamepad1.right_trigger>0)
-//            {
+            if (currentGamepad1.x && !previousGamepad1.x){
+
+                nearFlag =!nearFlag;
+            }
+
+            if (nearFlag)
+            {
 //                runningActions.add(
 //                        new SequentialAction(
-//                                Feeder.UFCommand(Feeder.UpperFeederState.RELEASE),
-//                                Feeder.LFCommand(Feeder.LowerFeederState.RELEASE),
-//                                Intake.RollerCommand(Intake.IntakeRollerState.RELEASE)
+//                                Outtake.HoodCommand(Outtake.HoodState.NEAR_START),
+//                                Outtake.ShooterCommand(Outtake.ShooterState.SLOW)
 //                        )
-//
 //                );
-//            }
-
-
-            if (gamepad1.y){
-                Globals.shooterMode = true;
-                runningActions.add(
-                        new SequentialAction(
-                                Outtake.HoodCommand(Outtake.HoodState.FAR),
-                                Outtake.ShooterCommand(Outtake.ShooterState.TELE_FAR)
-                        )
-                );
-
             }
-
-            if (gamepad1.x){
-                Globals.shooterMode = true;
-
-                runningActions.add(
-                        new SequentialAction(
-                                Outtake.HoodCommand(Outtake.HoodState.INIT),
-                                Outtake.ShooterCommand(Outtake.ShooterState.NEAR)
-                        )
-                );
-
-            }
-
 
             if (farFlag)
             {
                 runningActions.add(
                         new SequentialAction(
-//                                Outtake.HoodCommand(Outtake.HoodState.FAR),
-                                Outtake.ShooterCommand(Outtake.ShooterState.TELE_FAR)
+//                                Outtake.HoodCommand(Outtake.HoodState.NEAR_START),
+                                Outtake.ShooterCommand(Outtake.ShooterState.FAR_BLUE)
                         )
                 );
             }
-            if (!farFlag)
+
+
+            if (!farFlag && !eg && !nearFlag)
             {
                 runningActions.add(
                         new SequentialAction(
@@ -918,47 +1000,36 @@ public class SB5_autoAllign extends LinearOpMode {
                 );
             }
 
-//
-//            if (angle > 90)
-//            {
-//                angle = 90;
-//            }
-//            if (angle < -90)
-//            {
-//                angle = -90;
-//            }
+            if (angle > 90)
+            {
+                angle = 90;
+            }
+            if (angle < -90)
+            {
+                angle = -90;
+            }
+
 
 
 //            lastOBeamstate = currentOBeamstate;
+
 
             dashboard.sendTelemetryPacket(packet);
 
             telemetry.addLine();
             packet.put("Target Velocity", Globals.curretShooterStateVelMode);
             packet.put("Current Velocity", robot.shooter.getVelocity());
-
-            telemetry.addData("loop (ms)", "%.2f", loopTimer.milliseconds());
-            telemetry.addData("encoder pos", robot.turretEncoder.getCurrentPosition());
-            telemetry.addData("angle", angle);
-            telemetry.addData("error : ", error);
             telemetry.addData("y_tag", y_tag);
+            telemetry.addData("z_tag",  z_tag);
+            telemetry.addData("Shooter State",  robot.shooter.getVelocity());
+            telemetry.addData("hood ",robot.hood.getPosition());
+            telemetry.addData("loop (ms)", "%.2f", loopTimer.milliseconds());
+            telemetry.addData("Velocity : ", robot.shooter.getVelocity());
+            telemetry.addData("HoodPos : ", robot.hood.getPosition());
             telemetry.addData("tagID : ", tagID);
             telemetry.addData("farFlag : ", farFlag);
-            telemetry.addData("pid : ", pid);
-            telemetry.addData("diff : ", Globals.shooterFarVel-robot.shooter.getVelocity());
-            telemetry.addData("counterFeed: ",  counterFeed);
-            telemetry.addData("counterB: ",  counterB);
+            telemetry.addData("nearFlag : ", nearFlag);
 
-            telemetry.addData("ib  : ", robot.intakeBeam.getState());
-            telemetry.addData("fb  : ", robot.feederBeam.getState());
-            telemetry.addData("ob  : ", robot.outtakeBeam.getState());
-
-            printDriveTelemetry();
-
-            telemetry.addData("Intake Current : ", robot.intakeRoller.getCurrent(CurrentUnit.AMPS));
-            telemetry.addData("UF Current : ", robot.upperFeeder.getCurrent(CurrentUnit.AMPS));
-            telemetry.addData("LF Current : ", robot.lowerFeeder.getCurrent(CurrentUnit.AMPS));
-            telemetry.addData("Shooter Current : ", robot.shooter.getCurrent(CurrentUnit.AMPS));
             telemetry.update();
         }
 
@@ -1015,7 +1086,9 @@ public class SB5_autoAllign extends LinearOpMode {
         LastError_tag = Error;
 
         Power_tag = kP_tag * Error + kI_tag * Integral_tag + kD_tag * Derivative;
+//        telemetry.addData("Pre PowerTag",Power_tag );
         Power_tag = Range.clip(Power_tag, -1.0, 1.0);
+//        telemetry.addData("Post Power_tag",Power_tag );
         return Power_tag;
     }
     public float[] rgbToHsv(float rNorm, float gNorm, float bNorm) {
@@ -1063,6 +1136,10 @@ public class SB5_autoAllign extends LinearOpMode {
         return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
     }
 
+    public double clamp(double value, double min, double max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
     public double  getContinuousIMU(double currentAngle) {
         double delta = currentAngle - prevAngle;
 
@@ -1077,9 +1154,6 @@ public class SB5_autoAllign extends LinearOpMode {
         prevAngle = currentAngle;
 
         return totalAngle;
-    }
-    public double clamp(double value, double min, double max) {
-        return Math.max(min, Math.min(max, value));
     }
 
     public static double run_turret(double imu, double min_in_pos, double max_in_pos, double pose, Telemetry telemetry){
@@ -1102,8 +1176,8 @@ public class SB5_autoAllign extends LinearOpMode {
             derivative = error - previous_error;
 
             previous_error = error;
-            pid = Globals.kp_turret*error + Globals.kd_turret*derivative + Globals.ki_turret*integral + Globals.feed ;
-            robot.turret1.setPower(-pid);
+            pid = Globals.kp_turret*error + Globals.kd_turret*derivative + Globals.ki_turret*integral+Globals.feed;
+//            robot.turret1.setPower(-pid);
             robot.turret2.setPower(pid);
             return -pid;
 
@@ -1117,12 +1191,11 @@ public class SB5_autoAllign extends LinearOpMode {
             derivative = error - previous_error;
 
             previous_error = error;
-            pid = Globals.kp_turret*error + Globals.kd_turret*derivative + Globals.ki_turret*integral   - Globals.feed;
-            robot.turret1.setPower(-pid);
+            pid = Globals.kp_turret*error + Globals.kd_turret*derivative + Globals.ki_turret*integral+Globals.feed;
+//            robot.turret1.setPower(-pid);
             robot.turret2.setPower(pid);
             return -pid;
         }
     }
-
 
 }

@@ -66,6 +66,9 @@ public class EDUCO_teleop_v2 extends LinearOpMode {
     private double prevAngle;
 
     public static double tagID_tag, x_tag, y_tag, z_tag, val_tag = 0;
+    // ---- AprilTag turn bias (fixes left/right asymmetry) ----
+    public static double turnBias = 0.0; // units SAME as z_tag
+
     public static double kP_tag = 0.025;
     public static double kI_tag = 0;
     public static double kD_tag = 0.25;
@@ -113,6 +116,9 @@ public class EDUCO_teleop_v2 extends LinearOpMode {
                 .setDrawCubeProjection(true)
                 .setDrawTagID(true)
                 .setDrawTagOutline(true)
+                .setLensIntrinsics(445.035,445.035,333.909,231.625)
+
+
                 // x position of the camera from the centre of the robot  ==  -2.36
                 // y position of the camera from the centre of the robot  ==  +2.44
                 // z position of the camera from the centre of the robot  ==
@@ -126,13 +132,23 @@ public class EDUCO_teleop_v2 extends LinearOpMode {
                 .addProcessor(tagProcessor)
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1")) // Webcam 1 name is always constant
                 .setCameraResolution(new Size(640, 480))
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+
                 .build();
 
 
         Thread Campid = new Thread(()->{
             while (!Thread.currentThread().isInterrupted() && opModeIsActive()){
                 try {
-                    val_tag = Aprilpid(z_tag);
+                    if (z_tag>0.2)
+                    {
+                        turnBias = -7;
+                    }
+                    if (z_tag<-0.2)
+                    {
+                        turnBias = 16;
+                    }
+                    val_tag = Aprilpid(z_tag - turnBias);
 
                 }
                 catch (Exception e) {
@@ -217,7 +233,7 @@ public class EDUCO_teleop_v2 extends LinearOpMode {
 
             if (bFlag_tag)
             {
-                if(April_tag == true && tagID_tag == 20){
+                if(April_tag == true && tagID_tag == 24){
 
 
 //                    robot.turret1.setPower(-val_tag);
@@ -262,6 +278,7 @@ public class EDUCO_teleop_v2 extends LinearOpMode {
             ///  updating actions
             runningActions = updateAction();
 
+            telemetry.addData("Z", z_tag);
 
             telemetry.addData("currentLF", drive.leftFront.getCurrent(CurrentUnit.AMPS));
             telemetry.addData("currentLB", drive.leftBack.getCurrent(CurrentUnit.AMPS));
@@ -277,6 +294,7 @@ public class EDUCO_teleop_v2 extends LinearOpMode {
             telemetry.addData("X", x_tag);
             telemetry.addData("Y", y_tag);
             telemetry.addData("Z", z_tag);
+
 //            telemetry.addData("ROLL", tag.ftcPose.roll);
 //            telemetry.addData("PTICH", tag.ftcPose.pitch);
 //            telemetry.addData("YAW", tag.ftcPose.yaw);
