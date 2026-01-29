@@ -41,7 +41,7 @@ import org.firstinspires.ftc.teamcode.subsystem.Outtake;
 import java.util.Arrays;
 
 @Config
-@Autonomous(group = " autos ", name="SB AUTO NEAR SCRIM🔴")
+//@Autonomous(group = " autos ", name="SB AUTO NEAR SCRIM🔴")
 //@Deprecated
 public class Red_Near_Scrim_New extends LinearOpMode {
     private RobotHardware robot = RobotHardware.getInstance();
@@ -241,13 +241,15 @@ public class Red_Near_Scrim_New extends LinearOpMode {
                                 )
                         )
                 )
-                .splineToLinearHeading(new Pose2d(16,65,Math.toRadians(130)), Math.toRadians(145))
-                .strafeToLinearHeading(new Vector2d(16.5, 65.5), Math.toRadians(120))
+
+                .splineToLinearHeading(new Pose2d(15,64,Math.toRadians(130)), Math.toRadians(145))
+                .strafeToLinearHeading(new Vector2d(15.5, 64), Math.toRadians(130))
+                .strafeToLinearHeading(new Vector2d(16.5, 63), Math.toRadians(130))
                 .waitSeconds(1.8)
                 .build();
 
 
-        Action trajectoryActionBack = drive.actionBuilder(new Pose2d(16.5, 65.5,Math.toRadians(120)))
+        Action trajectoryActionBack = drive.actionBuilder(new Pose2d(16.5, 63,Math.toRadians(130)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
                                         new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
@@ -312,6 +314,9 @@ public class Red_Near_Scrim_New extends LinearOpMode {
                         )
                 )
 
+                .strafeToLinearHeading(new Vector2d(4, 40), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(4, 62), Math.toRadians(90))
+                .waitSeconds(0.3)
                 .strafeToLinearHeading(new Vector2d(-7, 16), Math.toRadians(90))
                 .build();
 
@@ -357,8 +362,8 @@ public class Red_Near_Scrim_New extends LinearOpMode {
                                 )
                         )
                 )
-                .splineToLinearHeading(new Pose2d(16,65,Math.toRadians(130)), Math.toRadians(145))
-                .strafeToLinearHeading(new Vector2d(17, 65.5), Math.toRadians(130))
+//                .splineToLinearHeading(new Pose2d(16,65,Math.toRadians(130)), Math.toRadians(145))
+                .strafeToLinearHeading(new Vector2d(-7, 55), Math.toRadians(90))
                 .waitSeconds(2)
                 .build();
 
@@ -1020,32 +1025,32 @@ public class Red_Near_Scrim_New extends LinearOpMode {
 
             //TODO preload Shoot 2
 
-            if (state == 16 && intakeTimer.milliseconds()>300)
-            {
-                counterFeed = 0;
-                state = 17;
-                intakeTimer.reset();
-            }
-
-
-            if (state==17) {
-                Actions.runBlocking(
-                        new SequentialAction(
-                                trajectoryActionBack2
-                        )
-                );
-                state = 18;
-            }
-
-
-            if (state==18) {
-                Actions.runBlocking(
-                        new SequentialAction(
-                                trajectoryAction62
-                        )
-                );
-                state = 196;
-            }
+//            if (state == 16 && intakeTimer.milliseconds()>300)
+//            {
+//                counterFeed = 0;
+//                state = 17;
+//                intakeTimer.reset();
+//            }
+//
+//
+//            if (state==17) {
+//                Actions.runBlocking(
+//                        new SequentialAction(
+//                                trajectoryActionBack2
+//                        )
+//                );
+//                state = 18;
+//            }
+//
+//
+//            if (state==18) {
+//                Actions.runBlocking(
+//                        new SequentialAction(
+//                                trajectoryAction62
+//                        )
+//                );
+//                state = 196;
+//            }
 
 
 

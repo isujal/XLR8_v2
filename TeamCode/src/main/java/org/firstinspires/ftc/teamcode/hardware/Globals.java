@@ -41,7 +41,8 @@ public class Globals {
     public static int turretTarget = 0;
     public static double turretPIDInit = 0, turretPIDTrack = 0, turretPIDShoot = 0, turretPIDBuffRed = 0, turretPIDBuffBlue = 0;
     public static double shooterInit = 0, shooterFar = 0, shooterNear = 0, shooterRelease = 0, shooterOff = 0;
-    public static int shooterInitVel = 0,shooterFarVelTeleOP = 1800,shooterFarVelBlue = 1620, shooterFarVel = 1800, shooterNearVel = 1400; // 1550
+    public static int shooterInitVel = 0,shooterFarVelTeleOP = 1800,shooterFarVelBlue = 1650; //1620
+    public static int shooterFarVel = 1800, shooterNearVel = 1400; // 1550
     public static int shooterReleaseVel = 1350, shooterOffVel = 0, shooterSlowVel = 1300;
     public static double kp_turret = 0.022; //0.015
     public static double ki_turret = 0; // 0

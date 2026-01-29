@@ -73,6 +73,12 @@ public class SB5_BIN extends LinearOpMode {
     public static double pose_x,pose_y,pose_heading;
     public static double servo_low = 0.88; //0.88 <- 0.8
     public static double servo_high = 0.9;//0.9 <- 0.88
+    public static double LOW = 1250;//0.9 <- 0.88
+    public static double HIGH = 1450;//0.9 <- 0.88
+    public static double hood_high = 1;//0.9 <- 0.88
+    public static double hood_low = 0.93;//0.9 <- 0.88
+    public static double a_tag_near = 28;//0.9 <- 0.88
+    public static double b_tag_near = 86;//0.9 <- 0.88
     public List<LynxModule> allHubs;
     ElapsedTime intakeTimer,motionTimer,secondBallTimer,feedButtonTimer;
     private FeedSequenceFSM feedSequenceFSM;
@@ -99,6 +105,7 @@ public class SB5_BIN extends LinearOpMode {
     public static boolean bFlag_tag = false;
     public static boolean farFlag ;
     public static boolean nearFlag ;
+    public static double SLEEP1 = 0.2, SLEEP2 = 0.5, SLEEP3 = 0.1, SLEEP4 = 0.6, SLEEP5 = 0.4;
 
     //TODO ---------------------------COLOR Sensor and Beam Breaks
 
@@ -286,7 +293,7 @@ public class SB5_BIN extends LinearOpMode {
 
                     val_tag = Aprilpid(z_tag);
 
-                    if (y_tag>105)
+                    if (y_tag>110)
                     {
                         robot.hood.setPosition(pos);
                         farFlag = true;
@@ -294,7 +301,7 @@ public class SB5_BIN extends LinearOpMode {
                     }
 
 
-                    else if (y_tag > 20 && y_tag < 78)
+                    else if (y_tag > 20 && y_tag < 90)
                     {
                         farFlag =false;
                         nearFlag = true;
@@ -424,8 +431,8 @@ public class SB5_BIN extends LinearOpMode {
                 y_tag = tag_tag.ftcPose.y;
                 z_tag = tag_tag.ftcPose.z;
                 pos = map (y_tag, 110,136,servo_low,servo_high);
-                pos2 = map (y_tag, 25,78,1250,1450); //1400
-                pos3 = map (robot.shooter.getVelocity(), 1250,1450,1,0.91);
+                pos2 = map (y_tag, a_tag_near,b_tag_near,LOW,HIGH); //1400  //25, 78  //28  86
+                pos3 = map (robot.shooter.getVelocity(), LOW,HIGH,hood_high,hood_low);
 
 
                 April_tag = true;
@@ -662,13 +669,13 @@ public class SB5_BIN extends LinearOpMode {
                                         new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
                                 ),
 
-                                new SleepAction(0.2), //0.3
+                                new SleepAction(0.3), //0.2
                                 new ParallelAction(
                                         new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
                                         new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON)),
                                         new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
                                 ),
-                                new SleepAction(0.1), //0.3
+                                new SleepAction(0.1), //0.2
                                 new ParallelAction(
                                         new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
                                         new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.ON))
@@ -695,24 +702,24 @@ public class SB5_BIN extends LinearOpMode {
                                         new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
                                         new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
                                 ),
-                                new SleepAction(0.3), //0.3
+                                new SleepAction(SLEEP1), //0.3
                                 new ParallelAction(
                                         new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
                                         new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
                                 ),
-                                new SleepAction(0.5), //0.3
+                                new SleepAction(SLEEP2), //0.5
                                 new ParallelAction(
                                         new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
                                         new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.ON))
                                 ),
-                                new SleepAction(0.1), //0.3
+                                new SleepAction(SLEEP3), //0.1
                                 new ParallelAction(
                                         new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
                                         new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.ON))
                                 ),
-                                new SleepAction(0.8), //0.3
+                                new SleepAction(SLEEP4), //0.8
                                 new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
-                                new SleepAction(0.5),
+                                new SleepAction(SLEEP5), // 0.5
                                 new InstantAction(()-> sequenceFlag = false),
                                 new InstantAction(()-> intakeFlag = true),
                                 new InstantAction(()-> counterFeed = 0)

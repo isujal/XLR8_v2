@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.TankDrive;
 import org.firstinspires.ftc.teamcode.TwoDeadWheelLocalizer;
 
 public class LocalizationTest extends LinearOpMode {
-    public static Pose2d  startPose = new Pose2d(58, 15, Math.toRadians(90));
+    public static Pose2d  startPose = new Pose2d(-36, -55, Math.toRadians(-90));
 
     @Override
     public void runOpMode() throws InterruptedException {

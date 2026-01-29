@@ -288,14 +288,14 @@ public class Blue_Far_Scrim extends LinearOpMode {
                                 )
                         )
                 )
-                .strafeToLinearHeading(new Vector2d(57, -58), Math.toRadians(-100),vel, accel0)  //57,-51
+                .strafeToLinearHeading(new Vector2d(30, -60), Math.toRadians(-90),vel, accel0)  //57,-51
 
 
 //                .splineToLinearHeading(new Pose2d(70,70,Math.toRadians(45)), Math.toRadians(45), vel,accel)
                 .build();
 //
 
-        Action trajectoryAction10 = drive.actionBuilder(new Pose2d(57, -58,Math.toRadians(-100)))
+        Action trajectoryAction10 = drive.actionBuilder(new Pose2d(30, -60,Math.toRadians(-90)))
                 .stopAndAdd(()->Actions.runBlocking(new ParallelAction(
                         new InstantAction(()-> new RollerCommand(intake,Intake.IntakeRollerState.OFF)),
                         new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
@@ -308,6 +308,67 @@ public class Blue_Far_Scrim extends LinearOpMode {
 
 //
         Action trajectoryAction11 = drive.actionBuilder(new Pose2d(43, -12,Math.toRadians(-90)))
+
+                .waitSeconds(0.2)
+                .stopAndAdd(()->Actions.runBlocking(new SequentialAction(
+
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+                        new SleepAction(0.3), //0.3
+                        new ParallelAction(
+                                new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
+                        ),
+                        new SleepAction(0.3), //0.3
+                        new ParallelAction(
+                                new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+                                new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.ON))
+                        ),
+                        new SleepAction(0.2), //0.3
+                        new ParallelAction(
+                                new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.ON))
+                        ),
+                        new SleepAction(0.5), //0.6
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON))
+
+
+                )))
+                .waitSeconds(0.1)//0.3
+
+                .build();
+
+
+
+
+        Action trajectoryAction12 = drive.actionBuilder(new Pose2d(43, -12,Math.toRadians(-90)))
+                .afterTime(0.01,() ->Actions.runBlocking(
+                                new SequentialAction(
+//                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.ON)),
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
+                                )
+                        )
+                )
+                .strafeToLinearHeading(new Vector2d(40, -60), Math.toRadians(-80),vel, accel0)  //57,-51
+
+
+//                .splineToLinearHeading(new Pose2d(70,70,Math.toRadians(45)), Math.toRadians(45), vel,accel)
+                .build();
+//
+
+        Action trajectoryAction13 = drive.actionBuilder(new Pose2d(40, -60,Math.toRadians(-100)))
+                .stopAndAdd(()->Actions.runBlocking(new ParallelAction(
+                        new InstantAction(()-> new RollerCommand(intake,Intake.IntakeRollerState.OFF)),
+                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))
+                )))
+                .strafeToLinearHeading(new Vector2d(43,-12), Math.toRadians(-90))
+
+                .build();
+
+
+//
+        Action trajectoryAction14 = drive.actionBuilder(new Pose2d(43, -12,Math.toRadians(-90)))
 
                 .waitSeconds(0.2)
                 .stopAndAdd(()->Actions.runBlocking(new SequentialAction(
@@ -675,6 +736,85 @@ public class Blue_Far_Scrim extends LinearOpMode {
                     }
 
 
+
+
+
+                    if (!robot.feederBeam.getState() && counterFeed == 0 && state == 17) {
+                        counterFeed += 1;
+
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Intake.IntakeCommand(Intake.IntakeServoState.IN),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.ON),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.ON)
+                                )
+                        );
+
+                    }
+                    if (robot.feederBeam.getState() && counterFeed == 1 && state == 17   ) {
+                        counterFeed += 1;
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Intake.IntakeCommand(Intake.IntakeServoState.IN),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.ON),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.ON)
+                                )
+                        );
+                    }
+                    if (counterFeed == 2 && !robot.feederBeam.getState() && state == 17) {
+                        counterFeed += 1;
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Intake.IntakeCommand(Intake.IntakeServoState.IN),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.ON),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.ON)
+                                )
+                        );
+                    }
+                    if (counterFeed == 3 && robot.feederBeam.getState() && state == 17) {
+                        counterFeed += 1;
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Intake.IntakeCommand(Intake.IntakeServoState.IN),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.ON),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.OFF)
+                                )
+                        );
+
+                    }
+
+                    if (counterFeed == 4 && !robot.intakeBeam.getState() && state == 17) {
+                        counterFeed += 1;
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Intake.IntakeCommand(Intake.IntakeServoState.IN),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.ON),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.OFF)
+                                )
+                        );
+                    }
+                    if (counterFeed == 5 && robot.intakeBeam.getState() && state == 17) {
+//                motionFlag = true;
+//                motionTimer.reset();
+                        counterFeed = 0;
+//                    gamepad1.rumble(1, 1, 400);
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.LFCommand(Feeder.LowerFeederState.OFF),
+                                        Intake.RollerCommand(Intake.IntakeRollerState.OFF)
+                                )
+                        );
+                        state = 18;
+
+                    }
+
+
                     try {
                         if (robot.shooter.getVelocity()>(Globals.shooterFarVel-buffer)){
                             readytoShootFar=true;
@@ -920,6 +1060,51 @@ public class Blue_Far_Scrim extends LinearOpMode {
                         )
                 );
                 state = 15;
+            }
+
+
+
+
+            if (state==15) {
+
+                Actions.runBlocking(
+                        new SequentialAction(
+                                new InstantAction(()-> state =17),
+                                trajectoryAction12
+                        )
+                );
+                intakeTimer.reset();
+
+            }
+
+            //TODO preload Shoot 2
+
+
+            if (state ==17 && intakeTimer.milliseconds()>200)
+            {
+                counterFeed = 0;
+                state = 18;
+                intakeTimer.reset();
+            }
+
+            if (state==18) {
+                Actions.runBlocking(
+                        new SequentialAction(
+                                trajectoryAction13
+
+                        )
+                );
+                state = 19;
+            }
+
+            if (state==19) {
+                Actions.runBlocking(
+                        new SequentialAction(
+                                trajectoryAction14
+
+                        )
+                );
+                state = 20;
             }
 //            if (state==7) {
 //                Actions.runBlocking(

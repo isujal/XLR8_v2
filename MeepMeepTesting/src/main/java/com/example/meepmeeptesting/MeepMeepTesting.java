@@ -22,41 +22,38 @@ public class MeepMeepTesting {
         VelConstraint speedDown = new MinVelConstraint(Arrays.asList(new TranslationalVelConstraint(90)));
 
 //TODO : NEAR AUTO
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-36, 55, 90))
+        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-36, -55, -90))
                 //TODO : Preload Shoot
-                .strafeToLinearHeading(new Vector2d(-7, 16), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(-7, -16), Math.toRadians(-90))
 //                .strafeToConstantHeading(new Vector2d(-14, 16))
                 //TODO : Pick First Motif from loading zone
-                .strafeToLinearHeading(new Vector2d(18, 32), Math.toRadians(90))
-                .strafeToLinearHeading(new Vector2d(18, 60), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(18, -32), Math.toRadians(-90))
+                .strafeToLinearHeading(new Vector2d(18, -60), Math.toRadians(-90))
 
 //                .strafeToLinearHeading(new Vector2d(-7, 16), Math.toRadians(90))
 
 
                 .waitSeconds(0.3)
 
+                // adity don ritesh mithu
+
                         .setReversed(false)
-                .strafeToLinearHeading(new Vector2d(-7, 16), Math.toRadians(90))
-
-
-                .strafeToLinearHeading(new Vector2d(10, 33), Math.toRadians(90))
-                        .setTangent(Math.toRadians(60))
-                        .splineToLinearHeading(new Pose2d(5,66,Math.toRadians(135)), Math.toRadians(145))
-                .strafeToLinearHeading(new Vector2d(10, 33), Math.toRadians(90))
-
-
-
                 .strafeToLinearHeading(new Vector2d(-7, -16), Math.toRadians(-90))
+                .splineToLinearHeading(new Pose2d(18,-60,Math.toRadians(-130)), Math.toRadians(-145))
+                .strafeToLinearHeading(new Vector2d(23, -61), Math.toRadians(-145))
+
+//                .strafeToLinearHeading(new Vector2d(-7, 16), Math.toRadians(90))
 
 
-                .splineToLinearHeading(new Pose2d(13,56,Math.toRadians(135)), Math.toRadians(145))
-                .strafeToLinearHeading(new Vector2d(-7, 16), Math.toRadians(90))
+                .waitSeconds(0.3)
+
+                .setReversed(false)
+                .strafeToLinearHeading(new Vector2d(43, 12), Math.toRadians(90))
 
 
-                        .setReversed(true)
 
-//                .splineToConstantHeading(new Vector2d(-7,57),Math.toRadians(90))
-                .strafeToLinearHeading(new Vector2d(-7, 57), Math.toRadians(90))
+
+
 
 
 //                .strafeToConstantHeading(new Vector2d(-14, 16))
@@ -89,9 +86,17 @@ public class MeepMeepTesting {
                 .build());
 
 //TODO : FAR AUTO
-//        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(60, 15, Math.toRadians(180)))
+//        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(60, 15, Math.toRadians(90)))
 //                //TODO : Preload Shoot and Pick from Third Spike Mark
-//                .strafeToLinearHeading(new Vector2d(47, 17), Math.toRadians(160))
+//                .strafeToLinearHeading(new Vector2d(47, 17), Math.toRadians(90))
+//
+//                .strafeToLinearHeading(new Vector2d(6, 30), Math.toRadians(90))
+//                .strafeToConstantHeading(new Vector2d(6,60))
+//                .strafeToConstantHeading(new Vector2d(6,30))
+////                .splineToConstantHeading(new Vector2d(70, 73))  //4.34S
+//
+//                //TODO : Shoot Second Motif
+//                .strafeToLinearHeading(new Vector2d(47, 17), Math.toRadians(90))
 ////                .waitSeconds(0.5)
 ////                .waitSeconds(0.5)
 //                .strafeToLinearHeading(new Vector2d(30, 30), Math.toRadians(90))
@@ -99,9 +104,9 @@ public class MeepMeepTesting {
 ////                .splineToConstantHeading(new Vector2d(70, 73))  //4.34S
 //
 //                //TODO : Shoot Second Motif
-//                .strafeToLinearHeading(new Vector2d(47, 17), Math.toRadians(160))
-//                .splineToLinearHeading(new Pose2d(60,50,Math.toRadians(135)), Math.toRadians(120))
-//                .splineToLinearHeading(new Pose2d(42,60,Math.toRadians(180)), Math.toRadians(-12))
+//                .strafeToLinearHeading(new Vector2d(47, 17), Math.toRadians(90))
+//
+//
 ////                .strafeToLinearHeading(new Vector2d(47, -47), Math.toRadians(-45))  //4.34S
 //////                .waitSeconds(0.5)
 //////                .waitSeconds(0.5)
@@ -121,7 +126,7 @@ public class MeepMeepTesting {
 //
 //                .build());
 
-        meepMeep.setBackground(MeepMeep.Background.FIELD_DECODE_JUICE_LIGHT)
+        meepMeep.setBackground(MeepMeep.Background.FIELD_DECODE_JUICE_DARK)
                 .setDarkMode(true)
                 .setBackgroundAlpha(1.99f)
                 .addEntity(myBot)
