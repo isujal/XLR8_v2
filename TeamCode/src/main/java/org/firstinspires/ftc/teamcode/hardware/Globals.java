@@ -9,12 +9,10 @@ public class Globals {
     //TODO======================================================== INTAKE =================================================
 
     public static double intakeServoInit = 0.8;
-    public static double intakeServoPick = 0.3;
+    public static double intakeServoPick = 0.15;
     public static double turretCurrentValue, currentAngleT;
     public static double intakeServoAutoPick = 0.3;
-    public static double intakeServoRelease=0.18
-
-            ;  //0.512 //R 0.488
+    public static double intakeServoRelease=0.1;  //0.512 //R 0.488
     public static double intakeRollerOn = -1;//L-0.813 R-0.187
     public static double intakeRollerOff = 0;
     public static double intakeRollerReverse = 1;
