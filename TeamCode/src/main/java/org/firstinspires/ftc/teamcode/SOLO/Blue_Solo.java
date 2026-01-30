@@ -321,7 +321,9 @@ public class Blue_Solo extends LinearOpMode {
         Action trajectoryAction12 = drive.actionBuilder(new Pose2d(42.5, -58,Math.toRadians(-90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
-                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF)),
+                                        new InstantAction(()-> new TurretCommand(outtake, Outtake.TurretState.TRACK_OFF)),
+                                        new InstantAction(()-> new ShooterCommand(outtake, Outtake.ShooterState.FAR_BLUE)),
+                                        new InstantAction(()-> new HoodCommand(outtake, Outtake.HoodState.AUTO_FAR)),                                      new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF)),
                                         new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
                                         new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))
                                 )
@@ -361,9 +363,9 @@ public class Blue_Solo extends LinearOpMode {
 
                 .build();
 
-        Action trajectoryAction14 = drive.actionBuilder(new Pose2d(-5, -16,Math.toRadians(-90)))
+        Action trajectoryAction14 = drive.actionBuilder(new Pose2d(54, -13,Math.toRadians(-90)))
 
-                .strafeToLinearHeading(new Vector2d(-5, -40), Math.toRadians(-90))
+                .strafeToLinearHeading(new Vector2d(54, -54), Math.toRadians(-90))
                 .build();
 
 

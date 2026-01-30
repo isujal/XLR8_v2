@@ -258,6 +258,7 @@ public class Red_Near_Nationals_Gate extends LinearOpMode {
                                         new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))                                )
                         )
                 )
+                .strafeToLinearHeading(new Vector2d(18, 35), Math.toRadians(90))
                 .strafeToLinearHeading(new Vector2d(-7, 16), Math.toRadians(90))
 
                 .build();

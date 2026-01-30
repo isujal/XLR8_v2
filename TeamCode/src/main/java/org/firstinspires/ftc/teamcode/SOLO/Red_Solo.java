@@ -185,6 +185,7 @@ public class Red_Solo extends LinearOpMode {
                 .strafeToLinearHeading(new Vector2d(18, 60), Math.toRadians(90), vel, accel)
 
 
+
                 .build();
 
 
@@ -193,10 +194,14 @@ public class Red_Solo extends LinearOpMode {
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
                                         new InstantAction(() -> new TurretCommand(outtake, Outtake.TurretState.SHOOT_NEAR_OFF)),
-                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
-                                )
+                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF)),
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))                                  )
                         )
                 )
+                .strafeToLinearHeading(new Vector2d(18, 40), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(6, 60), Math.toRadians(90))
+                .waitSeconds(0.3)
                 .strafeToLinearHeading(new Vector2d(-1, 13), Math.toRadians(90))
                 .build();
 
@@ -252,14 +257,13 @@ public class Red_Solo extends LinearOpMode {
         Action trajectoryAction8 = drive.actionBuilder(new Pose2d(-6, 57,Math.toRadians(90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
-                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
-                                )
+                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF)),
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))                                   )
                         )
                 )
 
-                .strafeToLinearHeading(new Vector2d(4, 40), Math.toRadians(90))
-                .strafeToLinearHeading(new Vector2d(4, 62), Math.toRadians(90))
-                .waitSeconds(0.3)
+
                 .strafeToLinearHeading(new Vector2d(-7, 16), Math.toRadians(90))
                 .build();
 
@@ -322,6 +326,9 @@ public class Red_Solo extends LinearOpMode {
         Action trajectoryAction12 = drive.actionBuilder(new Pose2d(42.5, 58,Math.toRadians(90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
+                                        new InstantAction(()-> new TurretCommand(outtake, Outtake.TurretState.SHOOT)),
+                                        new InstantAction(()-> new ShooterCommand(outtake, Outtake.ShooterState.FAR_BLUE)),
+                                        new InstantAction(()-> new HoodCommand(outtake, Outtake.HoodState.AUTO_FAR)),
                                         new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF)),
                                         new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
                                         new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))
@@ -332,7 +339,7 @@ public class Red_Solo extends LinearOpMode {
                 .build();
 
 
-        Action trajectoryAction13 = drive.actionBuilder(new Pose2d(-7, 16,Math.toRadians(90)))
+        Action trajectoryAction13 = drive.actionBuilder(new Pose2d(54, 13,Math.toRadians(90)))
 
                 .waitSeconds(0.4)
                 .stopAndAdd(()->Actions.runBlocking(new SequentialAction(
@@ -362,9 +369,9 @@ public class Red_Solo extends LinearOpMode {
 
                 .build();
 
-        Action trajectoryAction14 = drive.actionBuilder(new Pose2d(-7, 16,Math.toRadians(90)))
+        Action trajectoryAction14 = drive.actionBuilder(new Pose2d(54, 13,Math.toRadians(90)))
 
-                .strafeToLinearHeading(new Vector2d(-7, 50), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(54, 54), Math.toRadians(90))
                 .build();
 
 
