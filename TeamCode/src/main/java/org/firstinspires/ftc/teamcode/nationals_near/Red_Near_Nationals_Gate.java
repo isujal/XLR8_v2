@@ -192,10 +192,11 @@ public class Red_Near_Nationals_Gate extends LinearOpMode {
         Action trajectoryAction4 = drive.actionBuilder(new Pose2d(18, 60,Math.toRadians(90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
-                                        new InstantAction(() -> new TurretCommand(outtake, Outtake.TurretState.SHOOT_NEAR_OFF)),
-                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF)),
                                         new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
-                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))                                )
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF)),
+                                        new InstantAction(() -> new TurretCommand(outtake, Outtake.TurretState.SHOOT_NEAR_OFF)),
+                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
+                                                                      )
                         )
                 )
                 .strafeToLinearHeading(new Vector2d(-1, 13), Math.toRadians(90))
@@ -311,9 +312,10 @@ public class Red_Near_Nationals_Gate extends LinearOpMode {
         Action trajectoryAction8 = drive.actionBuilder(new Pose2d(-6, 57,Math.toRadians(90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
-                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF)),
                                         new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
-                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))                                )
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))   ,
+                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
+                                )
                         )
                 )
 

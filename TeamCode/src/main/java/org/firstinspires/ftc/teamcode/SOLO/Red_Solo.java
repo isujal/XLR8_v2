@@ -193,10 +193,11 @@ public class Red_Solo extends LinearOpMode {
         Action trajectoryAction4 = drive.actionBuilder(new Pose2d(18, 60,Math.toRadians(90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
-                                        new InstantAction(() -> new TurretCommand(outtake, Outtake.TurretState.SHOOT_NEAR_OFF)),
-                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF)),
                                         new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
-                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))                                  )
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))   ,
+                                        new InstantAction(() -> new TurretCommand(outtake, Outtake.TurretState.SHOOT_NEAR_OFF)),
+                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
+                                                                       )
                         )
                 )
                 .strafeToLinearHeading(new Vector2d(18, 40), Math.toRadians(90))
@@ -231,7 +232,7 @@ public class Red_Solo extends LinearOpMode {
 
 
                 )))
-                .waitSeconds(0.1)
+                .waitSeconds(0.2)
 
                 .build();
 
@@ -257,9 +258,10 @@ public class Red_Solo extends LinearOpMode {
         Action trajectoryAction8 = drive.actionBuilder(new Pose2d(-6, 57,Math.toRadians(90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
-                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF)),
                                         new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
-                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))                                   )
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))        ,
+                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
+                                                                   )
                         )
                 )
 
@@ -316,7 +318,15 @@ public class Red_Solo extends LinearOpMode {
 
 
         Action trajectoryAction11 = drive.actionBuilder(new Pose2d(42.5, 30,Math.toRadians(90)))
+                .afterTime(0.01,() ->Actions.runBlocking(
+                                new SequentialAction(
+                                        new InstantAction(()-> new TurretCommand(outtake, Outtake.TurretState.SHOOT)),
+                                        new InstantAction(()-> new ShooterCommand(outtake, Outtake.ShooterState.FAR_BLUE)),
+                                        new InstantAction(()-> new HoodCommand(outtake, Outtake.HoodState.AUTO_FAR))
 
+                                )
+                        )
+                )
                 .strafeToLinearHeading(new Vector2d(42.5, 58), Math.toRadians(90), vel, accel)
 
 
@@ -328,10 +338,7 @@ public class Red_Solo extends LinearOpMode {
                                 new SequentialAction(
                                         new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
                                         new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF)),
-                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF)),
-                                        new InstantAction(()-> new TurretCommand(outtake, Outtake.TurretState.SHOOT)),
-                                        new InstantAction(()-> new ShooterCommand(outtake, Outtake.ShooterState.FAR_BLUE)),
-                                        new InstantAction(()-> new HoodCommand(outtake, Outtake.HoodState.AUTO_FAR))
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))
 
                                 )
                         )
