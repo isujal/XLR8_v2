@@ -233,7 +233,7 @@ public class Red_Near_Nationals_Gate extends LinearOpMode {
 
 
 
-        Action trajectoryActionGate = drive.actionBuilder(new Pose2d(-7, 16,Math.toRadians(90)))
+        Action trajectoryActionGate = drive.actionBuilder(new Pose2d(-1, 13,Math.toRadians(90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new ParallelAction(
                                         new InstantAction(() -> new ServoCommand(intake,Intake.IntakeServoState.RELEASE)),
@@ -245,12 +245,12 @@ public class Red_Near_Nationals_Gate extends LinearOpMode {
 
                 .splineToLinearHeading(new Pose2d(15,64,Math.toRadians(130)), Math.toRadians(145))
                 .strafeToLinearHeading(new Vector2d(15.5, 64), Math.toRadians(130))
-                .strafeToLinearHeading(new Vector2d(16.5, 63), Math.toRadians(130))
+                .strafeToLinearHeading(new Vector2d(23, 61), Math.toRadians(135))
                 .waitSeconds(1.8)
                 .build();
 
 
-        Action trajectoryActionBack = drive.actionBuilder(new Pose2d(16.5, 63,Math.toRadians(130)))
+        Action trajectoryActionBack = drive.actionBuilder(new Pose2d(23, 61,Math.toRadians(135)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
                                         new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF)),
