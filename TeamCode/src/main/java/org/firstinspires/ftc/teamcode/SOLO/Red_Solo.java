@@ -310,12 +310,12 @@ public class Red_Solo extends LinearOpMode {
                                 )
                         )
                 )
-                .strafeToLinearHeading(new Vector2d(42.5, 32), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(42.5, 30), Math.toRadians(90))
 
                 .build();
 
 
-        Action trajectoryAction11 = drive.actionBuilder(new Pose2d(42.5, 32,Math.toRadians(90)))
+        Action trajectoryAction11 = drive.actionBuilder(new Pose2d(42.5, 30,Math.toRadians(90)))
 
                 .strafeToLinearHeading(new Vector2d(42.5, 58), Math.toRadians(90), vel, accel)
 
@@ -326,16 +326,17 @@ public class Red_Solo extends LinearOpMode {
         Action trajectoryAction12 = drive.actionBuilder(new Pose2d(42.5, 58,Math.toRadians(90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF)),
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF)),
                                         new InstantAction(()-> new TurretCommand(outtake, Outtake.TurretState.SHOOT)),
                                         new InstantAction(()-> new ShooterCommand(outtake, Outtake.ShooterState.FAR_BLUE)),
-                                        new InstantAction(()-> new HoodCommand(outtake, Outtake.HoodState.AUTO_FAR)),
-                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF)),
-                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
-                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))
+                                        new InstantAction(()-> new HoodCommand(outtake, Outtake.HoodState.AUTO_FAR))
+
                                 )
                         )
                 )
-                .strafeToLinearHeading(new Vector2d(-7, 16), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(54, 13), Math.toRadians(90))
                 .build();
 
 
