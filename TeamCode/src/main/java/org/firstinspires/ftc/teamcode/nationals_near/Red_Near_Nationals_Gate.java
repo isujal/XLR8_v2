@@ -87,7 +87,7 @@ public class Red_Near_Nationals_Gate extends LinearOpMode {
     private ElapsedTime timer = new ElapsedTime();
 
     VelConstraint vel =new MinVelConstraint(Arrays.asList(new TranslationalVelConstraint(30)));
-    AccelConstraint accel = new ProfileAccelConstraint(-45,50);
+    AccelConstraint accel = new ProfileAccelConstraint(-45,40);
     AccelConstraint accel2 = new ProfileAccelConstraint(-45,5);
 
 
@@ -351,19 +351,12 @@ public class Red_Near_Nationals_Gate extends LinearOpMode {
 
 //
                 )))
-                .waitSeconds(0.1)
+                .waitSeconds(0.3)
 
                 .build();
 
         Action trajectoryActionLeave = drive.actionBuilder(new Pose2d(-7, 16,Math.toRadians(90)))
-                .afterTime(0.01,() ->Actions.runBlocking(
-                                new SequentialAction(
-                                        new InstantAction(() -> new ServoCommand(intake,Intake.IntakeServoState.RELEASE)),
-                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF))
 
-                                )
-                        )
-                )
 //                .splineToLinearHeading(new Pose2d(16,65,Math.toRadians(130)), Math.toRadians(145))
                 .strafeToLinearHeading(new Vector2d(-7, 55), Math.toRadians(90))
                 .waitSeconds(2)

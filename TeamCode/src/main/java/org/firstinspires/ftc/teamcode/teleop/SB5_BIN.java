@@ -66,7 +66,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Config
-@TeleOp(name = "BIN LADEN", group = "ATELEOP")
+@TeleOp(name = "SB5 LT Optimised", group = "ATELEOP")
 public class SB5_BIN extends LinearOpMode {
     private static RobotHardware robot=RobotHardware.getInstance();
 
@@ -587,6 +587,8 @@ public class SB5_BIN extends LinearOpMode {
                     counterFeed = 4;
                     runningActions.add(
                             new ParallelAction(
+                                    Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+
                                     Feeder.LFCommand(Feeder.LowerFeederState.OFF),
 //                                    Outtake.HoodCommand(Outtake.HoodState.NEAR_END),
                                     Outtake.ShooterCommand(Outtake.ShooterState.NEAR)
@@ -604,6 +606,8 @@ public class SB5_BIN extends LinearOpMode {
             {
                 runningActions.add(
                         new ParallelAction(
+                                Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+
                                 Feeder.LFCommand(Feeder.LowerFeederState.OFF),
 //                                Outtake.HoodCommand(Outtake.HoodState.NEAR_END),
                                 Outtake.ShooterCommand(Outtake.ShooterState.NEAR)
@@ -618,6 +622,8 @@ public class SB5_BIN extends LinearOpMode {
                 counterFeed += 1;
                 runningActions.add(
                         new ParallelAction(
+                                Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+
                                 Feeder.LFCommand(Feeder.LowerFeederState.OFF),
 //                                Outtake.HoodCommand(Outtake.HoodState.NEAR_END),
                                 Outtake.ShooterCommand(Outtake.ShooterState.NEAR)
@@ -631,6 +637,8 @@ public class SB5_BIN extends LinearOpMode {
                 counterFeed += 1;
                 runningActions.add(
                         new ParallelAction(
+                                Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+
                                 Feeder.LFCommand(Feeder.LowerFeederState.OFF),
 //                                Outtake.HoodCommand(Outtake.HoodState.NEAR_END),
                                 Outtake.ShooterCommand(Outtake.ShooterState.NEAR)

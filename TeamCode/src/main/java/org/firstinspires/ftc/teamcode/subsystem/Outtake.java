@@ -23,7 +23,7 @@ public class Outtake {
     public static HoodState hoodState = HoodState.INIT;
 
     public enum TurretState {
-        INIT, TRACK,TRACK_OFF, SHOOT, SHOOT_NEAR,SHOOT_NEAR_OFF,BUFF_RED,BUFF_RED_OFF,BUFF_BLUE, IMU_TRACK
+        INIT, TRACK,TRACK_OFF, SHOOT, SHOOT_OFF,SHOOT_NEAR,SHOOT_NEAR_OFF,BUFF_RED,BUFF_RED_OFF,BUFF_BLUE, IMU_TRACK
     }public enum TurretPIDState {
         INIT, TRACK, SHOOT,BUFF_RED,BUFF_BLUE
     }public enum ShooterState {
@@ -51,6 +51,9 @@ public class Outtake {
                 break;
             case SHOOT:
                 Globals.currentTurretState= Globals.turretShoot;
+                break;
+            case SHOOT_OFF:
+                Globals.currentTurretState= Globals.turretShootOff;
                 break;
             case SHOOT_NEAR:
                 Globals.currentTurretState= Globals.turretShootNear;

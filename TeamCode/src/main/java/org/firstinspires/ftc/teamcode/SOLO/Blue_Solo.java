@@ -87,7 +87,7 @@ public class Blue_Solo extends LinearOpMode {
     private ElapsedTime timer = new ElapsedTime();
 
     VelConstraint vel =new MinVelConstraint(Arrays.asList(new TranslationalVelConstraint(30)));
-    AccelConstraint accel = new ProfileAccelConstraint(-45,50);
+    AccelConstraint accel = new ProfileAccelConstraint(-45,40);
     AccelConstraint accel2 = new ProfileAccelConstraint(-45,5);
 
 
@@ -192,6 +192,8 @@ public class Blue_Solo extends LinearOpMode {
         Action trajectoryAction4 = drive.actionBuilder(new Pose2d(18, -60,Math.toRadians(-90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF)),
                                         new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
                                 )
                         )
@@ -251,6 +253,8 @@ public class Blue_Solo extends LinearOpMode {
         Action trajectoryAction8 = drive.actionBuilder(new Pose2d(-6, -57,Math.toRadians(-90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF)),
                                         new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
                                 )
                         )
@@ -321,19 +325,22 @@ public class Blue_Solo extends LinearOpMode {
         Action trajectoryAction12 = drive.actionBuilder(new Pose2d(42.5, -58,Math.toRadians(-90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF)),
+                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF)),
                                         new InstantAction(()-> new TurretCommand(outtake, Outtake.TurretState.TRACK_OFF)),
                                         new InstantAction(()-> new ShooterCommand(outtake, Outtake.ShooterState.FAR_BLUE)),
-                                        new InstantAction(()-> new HoodCommand(outtake, Outtake.HoodState.AUTO_FAR)),                                      new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF)),
-                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
-                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))
+                                        new InstantAction(()-> new HoodCommand(outtake, Outtake.HoodState.AUTO_FAR))
+
+
                                 )
                         )
                 )
-                .strafeToLinearHeading(new Vector2d(-5, -16), Math.toRadians(-90))
+                .strafeToLinearHeading(new Vector2d(54, -13), Math.toRadians(-90))
                 .build();
 
 
-        Action trajectoryAction13 = drive.actionBuilder(new Pose2d(-5, -16,Math.toRadians(-90)))
+        Action trajectoryAction13 = drive.actionBuilder(new Pose2d(54, -13,Math.toRadians(-90)))
 
                 .waitSeconds(0.4)
                 .stopAndAdd(()->Actions.runBlocking(new SequentialAction(

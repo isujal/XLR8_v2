@@ -66,13 +66,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Config
-@TeleOp(name = "SB5 LT Optimised", group = "ATELEOP")
+@TeleOp(name = "BIN LADEN", group = "ATELEOP")
 public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
     private static RobotHardware robot=RobotHardware.getInstance();
 
     public static double pose_x,pose_y,pose_heading;
     public static double servo_low = 0.88; //0.88 <- 0.8
+    public static double delay = 0.3; //0.88 <- 0.8
     public static double servo_high = 0.9;//0.9 <- 0.88
+    public static double LOW = 1250;//0.9 <- 0.88
+    public static double HIGH = 1450;//0.9 <- 0.88
+    public static double hood_high = 1;//0.9 <- 0.88
+    public static double hood_low = 0.93;//0.9 <- 0.88
+    public static double a_tag_near = 28;//0.9 <- 0.88
+    public static double b_tag_near = 86;//0.9 <- 0.88
     public List<LynxModule> allHubs;
     ElapsedTime intakeTimer,motionTimer,secondBallTimer,feedButtonTimer;
     private FeedSequenceFSM feedSequenceFSM;
@@ -81,6 +88,8 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
     private Feeder feeder;
     private MecanumDrive drive;
     double pos;
+    double pos2;
+    double pos3;
     private FtcDashboard dashboard;
 
 
@@ -97,6 +106,7 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
     public static boolean bFlag_tag = false;
     public static boolean farFlag ;
     public static boolean nearFlag ;
+    public static double SLEEP1 = 0.2, SLEEP2 = 0.5, SLEEP3 = 0.1, SLEEP4 = 0.6, SLEEP5 = 0.4;
 
     //TODO ---------------------------COLOR Sensor and Beam Breaks
 
@@ -120,6 +130,8 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
     public double derivative;
     public static double pid;
     public double a;
+    public static double turnBias = 0.0; // units SAME as z_tag
+
 
     public static double kp = 0.02, ki = 0, kd = 0.02;
 
@@ -225,7 +237,7 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
                 .setDrawCubeProjection(true)
                 .setDrawTagID(true)
                 .setDrawTagOutline(true)
-//                .setLensIntrinsics(445.035,445.035,333.909,231.625)
+                .setLensIntrinsics(445.035,445.035,333.909,231.625)
                 // x position of the camera from the centre of the robot  ==  -2.36
                 // y position of the camera from the centre of the robot  ==  +2.44
                 // z position of the camera from the centre of the robot  ==
@@ -248,9 +260,41 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
         Thread Campid = new Thread(()->{
             while (!Thread.currentThread().isInterrupted() && opModeIsActive()){
                 try {
+
+//                    if (tagID == 20)
+//                    {
+//                        if (z_tag>0.2)
+//                        {
+//                            turnBias = -3;
+//                        }
+//                        if (z_tag<-0.2)
+//                        {
+//                            turnBias = 21;
+//                        }
+//                    }
+//
+//
+//                    if (tagID == 24)
+//                    {
+//                        if (z_tag>0.2)
+//                        {
+//                            turnBias = -7;
+//                        }
+//                        if (z_tag<-0.2)
+//                        {
+//                            turnBias = 16;
+//                        }
+//                    }
+
+
+
+
+
+                    val_tag = Aprilpid(z_tag - turnBias);
+
                     val_tag = Aprilpid(z_tag);
 
-                    if (y_tag>135)
+                    if (y_tag>110)
                     {
                         robot.hood.setPosition(pos);
                         farFlag = true;
@@ -258,10 +302,12 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
                     }
 
 
-                    else if (y_tag < 45)
+                    else if (y_tag > 20 && y_tag < 90)
                     {
                         farFlag =false;
                         nearFlag = true;
+                        robot.shooter.setVelocity(pos2);
+                        robot.hood.setPosition(pos3);
 
                     }
 
@@ -385,7 +431,9 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
                 x_tag = tag_tag.ftcPose.x;
                 y_tag = tag_tag.ftcPose.y;
                 z_tag = tag_tag.ftcPose.z;
-                pos = map (y_tag, 142,177,servo_low,servo_high);
+                pos = map (y_tag, 110,136,servo_low,servo_high);
+                pos2 = map (y_tag, a_tag_near,b_tag_near,LOW,HIGH); //1400  //25, 78  //28  86
+                pos3 = map (robot.shooter.getVelocity(), LOW,HIGH,hood_high,hood_low);
 
 
                 April_tag = true;
@@ -462,12 +510,12 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
 
             if (gamepad2.dpad_left)
             {
-                required_target = 40;
+                Globals.currentTurretState += 2;
             }
 
             if (gamepad2.dpad_right)
             {
-                required_target =-45;
+                Globals.currentTurretState -= 2;
             }
 
             if (gamepad2.dpad_up)
@@ -523,14 +571,17 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
             }
 
             if (!robot.feederBeam.getState() && counterFeed==0 && intakeFlag){
+
                 counterFeed += 1;
             }
             if (robot.feederBeam.getState() && counterFeed ==1 && intakeFlag){
                 counterFeed += 1;
+
                 shoot1 = true;
             }
             if (counterFeed == 2 && !robot.intakeBeam.getState() && intakeFlag)
             {
+
                 secondBallTimer.reset();
                 secondBallFlag = true;
             }
@@ -539,13 +590,18 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
                 if(secondBallTimer.milliseconds()>secondBallTime){
                     counterFeed = 4;
                     runningActions.add(
-                            new ParallelAction(
-                                    Feeder.LFCommand(Feeder.LowerFeederState.OFF),
-//                                    Outtake.HoodCommand(Outtake.HoodState.NEAR_END),
-                                    Outtake.ShooterCommand(Outtake.ShooterState.NEAR)
 
-                            )
+
+                                    new ParallelAction(
+                                            Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+
+                                            Feeder.LFCommand(Feeder.LowerFeederState.OFF),
+//                                    Outtake.HoodCommand(Outtake.HoodState.NEAR_END),
+                                            Outtake.ShooterCommand(Outtake.ShooterState.NEAR)
+                                    )
                     );
+
+
                     secondBallFlag = false;
 
                 }
@@ -557,6 +613,8 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
             {
                 runningActions.add(
                         new ParallelAction(
+//                                Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+
                                 Feeder.LFCommand(Feeder.LowerFeederState.OFF),
 //                                Outtake.HoodCommand(Outtake.HoodState.NEAR_END),
                                 Outtake.ShooterCommand(Outtake.ShooterState.NEAR)
@@ -571,6 +629,8 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
                 counterFeed += 1;
                 runningActions.add(
                         new ParallelAction(
+//                                Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+
                                 Feeder.LFCommand(Feeder.LowerFeederState.OFF),
 //                                Outtake.HoodCommand(Outtake.HoodState.NEAR_END),
                                 Outtake.ShooterCommand(Outtake.ShooterState.NEAR)
@@ -584,6 +644,8 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
                 counterFeed += 1;
                 runningActions.add(
                         new ParallelAction(
+//                                Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+
                                 Feeder.LFCommand(Feeder.LowerFeederState.OFF),
 //                                Outtake.HoodCommand(Outtake.HoodState.NEAR_END),
                                 Outtake.ShooterCommand(Outtake.ShooterState.NEAR)
@@ -616,19 +678,19 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
             {
                 Actions.runBlocking(
                         new SequentialAction(
-
                                 new ParallelAction(
                                         new InstantAction(()-> counterB = 0),
                                         new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
                                         new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
                                 ),
 
-                                new SleepAction(0.3), //0.3
+                                new SleepAction(0.3), //0.2
                                 new ParallelAction(
                                         new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
-                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON)),
+                                        new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
                                 ),
-                                new SleepAction(0.3), //0.3
+                                new SleepAction(0.1), //0.2
                                 new ParallelAction(
                                         new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
                                         new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.ON))
@@ -650,25 +712,29 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
             {
                 Actions.runBlocking(
                         new SequentialAction(
-                                new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
-                                new SleepAction(0.3), //0.3
+                                new ParallelAction(
+                                        new InstantAction(()-> counterB = 0),
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+                                        new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
+                                ),
+                                new SleepAction(SLEEP1), //0.3
                                 new ParallelAction(
                                         new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
                                         new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
                                 ),
-                                new SleepAction(0.5), //0.3
+                                new SleepAction(SLEEP2), //0.5
                                 new ParallelAction(
                                         new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
                                         new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.ON))
                                 ),
-                                new SleepAction(0.1), //0.3
+                                new SleepAction(SLEEP3), //0.1
                                 new ParallelAction(
                                         new InstantAction(() -> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
                                         new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.ON))
                                 ),
-                                new SleepAction(0.8), //0.3
+                                new SleepAction(SLEEP4), //0.8
                                 new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
-                                new SleepAction(0.5),
+                                new SleepAction(SLEEP5), // 0.5
                                 new InstantAction(()-> sequenceFlag = false),
                                 new InstantAction(()-> intakeFlag = true),
                                 new InstantAction(()-> counterFeed = 0)
@@ -692,11 +758,11 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
             {
                 feedFlag = true;
             }
-            if (feedFlag && previousGamepad1.right_bumper)
+            if (feedFlag && previousGamepad1.b)
             {
                 feedButtonFlag = true;
             }
-            else if (!feedFlag && previousGamepad1.right_bumper)
+            else if (!feedFlag && previousGamepad1.b)
             {
                 feedButtonFlag = true;
             }
@@ -788,7 +854,7 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
             }
 
 
-            if (feedButtonFlag && counterFeed == 2 && previousGamepad1.right_bumper && counterB ==3)
+            if (feedButtonFlag && counterFeed == 2 && previousGamepad1.b && counterB ==3)
             {
 
 
@@ -818,6 +884,7 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
                 robot.endgame.setPosition(Globals.eg_release);
                 runningActions.add(
                         new ParallelAction(
+                                new InstantAction(()-> intakeFlag = false),
                                 Outtake.ShooterCommand(Outtake.ShooterState.OFF),
                                 Intake.IntakeCommand(Intake.IntakeServoState.INIT),
                                 Intake.RollerCommand(Intake.IntakeRollerState.OFF),
@@ -866,6 +933,11 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
             {
                 singleShoot = !singleShoot;
                 counterFeed = 0;
+            }
+
+            if (currentGamepad2.a && !previousGamepad2.a)
+            {
+                intakeFlag = false;
             }
 //
             if(singleShoot)
@@ -923,12 +995,12 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
 
             if (nearFlag)
             {
-                runningActions.add(
-                        new SequentialAction(
-                                Outtake.HoodCommand(Outtake.HoodState.NEAR_START),
-                                Outtake.ShooterCommand(Outtake.ShooterState.SLOW)
-                        )
-                );
+//                runningActions.add(
+//                        new SequentialAction(
+//                                Outtake.HoodCommand(Outtake.HoodState.NEAR_START),
+//                                Outtake.ShooterCommand(Outtake.ShooterState.SLOW)
+//                        )
+//                );
             }
 
             if (farFlag)
@@ -972,7 +1044,13 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
             packet.put("Target Velocity", Globals.curretShooterStateVelMode);
             packet.put("Current Velocity", robot.shooter.getVelocity());
 
+            telemetry.addData("y_tag", y_tag);
+            telemetry.addData("z_tag",  z_tag);
+            telemetry.addData("Shooter State",  robot.shooter.getVelocity());
+            telemetry.addData("hood ",robot.hood.getPosition());
             telemetry.addData("loop (ms)", "%.2f", loopTimer.milliseconds());
+            telemetry.addData("Velocity : ", robot.shooter.getVelocity());
+            telemetry.addData("HoodPos : ", robot.hood.getPosition());
             telemetry.addData("tagID : ", tagID);
             telemetry.addData("farFlag : ", farFlag);
             telemetry.addData("nearFlag : ", nearFlag);
@@ -1033,7 +1111,9 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
         LastError_tag = Error;
 
         Power_tag = kP_tag * Error + kI_tag * Integral_tag + kD_tag * Derivative;
+//        telemetry.addData("Pre PowerTag",Power_tag );
         Power_tag = Range.clip(Power_tag, -1.0, 1.0);
+//        telemetry.addData("Post Power_tag",Power_tag );
         return Power_tag;
     }
     public float[] rgbToHsv(float rNorm, float gNorm, float bNorm) {
@@ -1144,3 +1224,26 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

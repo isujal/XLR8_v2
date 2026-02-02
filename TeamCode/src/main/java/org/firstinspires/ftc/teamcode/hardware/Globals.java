@@ -25,6 +25,7 @@ public class Globals {
     public static double upperfeederOff = 0;
     public static double upperfeederReverse = 1;
     public static double upperfeederPow = -0.5;
+    public static double upperfeederSlow = 0.1;
 
     public static double lowerfeederOn = 1;
     public static double lowerfeederOff = 0;
@@ -33,7 +34,7 @@ public class Globals {
 
     //TODO======================================================== OUTTAKE =====  ===============================================
 
-    public static double turret_imu_track = 0,turretInit = 0, turretInitNear = -50, turretInitBlueFar = 60, turretInitBlueNear = 45, turretTrack = -65,turretTrackOff = -62, turretShoot = 68, turretShootNear = 45,turretShootNearOff = 42, turretBuffRed = -45,turretBuffRedOff = -42, turretBuffBlue = 130;
+    public static double turret_imu_track = 0,turretInit = 0, turretInitNear = -50, turretInitBlueFar = 60, turretInitBlueNear = 45, turretTrack = -65,turretTrackOff = -65, turretShoot = 68,turretShootOff= 68, turretShootNear = 45,turretShootNearOff = 42, turretBuffRed = -45,turretBuffRedOff = -42, turretBuffBlue = 130;
     public static double currentTurretState;
     public static double curretShooterStateVelMode;
     public static int turretTarget = 0;

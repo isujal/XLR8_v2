@@ -17,7 +17,7 @@ public class Feeder {
     public static LowerFeederState lowerFeederState = LowerFeederState.OFF;
 
     public enum UpperFeederState {
-        ON, OFF, POW, RELEASE
+        ON, OFF, POW, RELEASE, SLOW
     }public enum LowerFeederState {
         ON, OFF, POW, RELEASE
     }
@@ -41,6 +41,9 @@ public class Feeder {
                 break;
             case RELEASE:
                 currentUFState= Globals.upperfeederReverse;
+                break;
+            case SLOW:
+                currentUFState= Globals.upperfeederSlow;
                 break;
         }
         setUpperFeederState(currentUFState);

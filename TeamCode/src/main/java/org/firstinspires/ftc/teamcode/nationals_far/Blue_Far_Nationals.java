@@ -124,7 +124,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                 )))
 
                 .strafeToLinearHeading(new Vector2d(43,-12), Math.toRadians(-90))
-                .waitSeconds(1)
+                .waitSeconds(1.2)
                 .stopAndAdd(()->Actions.runBlocking(new SequentialAction(
 
                         new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
@@ -154,7 +154,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
                                         new InstantAction(()-> new TurretCommand(outtake, Outtake.TurretState.TRACK)),
-                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.SLOW)),
                                         new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
                                 )
                         )
@@ -219,7 +219,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
 //                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.ON)),
-                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.SLOW)),
                                         new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
                                 )
                         )
@@ -283,20 +283,26 @@ public class Blue_Far_Nationals extends LinearOpMode {
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
 //                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.ON)),
-                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.SLOW)),
                                         new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
                                 )
                         )
                 )
-                .strafeToLinearHeading(new Vector2d(42,-60), Math.toRadians(-40))
-                .strafeToLinearHeading(new Vector2d(49, -63), Math.toRadians(-2),vel,accel0)
-                .strafeToLinearHeading(new Vector2d(58, -65), Math.toRadians(-2))
+                // TODO: Eureka blank shot
+                .strafeToLinearHeading(new Vector2d(50,-60), Math.toRadians(-90))
+//
+
+
+                //TODO: blank shot
+//                .strafeToLinearHeading(new Vector2d(42,-60), Math.toRadians(-40))
+//                .strafeToLinearHeading(new Vector2d(49, -63), Math.toRadians(-2),vel,accel0)
+//                .strafeToLinearHeading(new Vector2d(58, -65), Math.toRadians(-2))
 
 //                .splineToLinearHeading(new Pose2d(70,70,Math.toRadians(45)), Math.toRadians(45), vel,accel)
                 .build();
 //
 
-        Action trajectoryAction10 = drive.actionBuilder(new Pose2d(58, -65,Math.toRadians(-2)))
+        Action trajectoryAction10 = drive.actionBuilder(new Pose2d(50, -60,Math.toRadians(-90)))
                 .stopAndAdd(()->Actions.runBlocking(new ParallelAction(
                         new InstantAction(()-> new RollerCommand(intake,Intake.IntakeRollerState.OFF)),
                         new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
@@ -345,12 +351,12 @@ public class Blue_Far_Nationals extends LinearOpMode {
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
 //                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.ON)),
-                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.SLOW)),
                                         new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
                                 )
                         )
                 )
-                .strafeToLinearHeading(new Vector2d(40, -60), Math.toRadians(-80),vel, accel0)  //57,-51
+                .strafeToLinearHeading(new Vector2d(40, -60), Math.toRadians(-100))  //57,-51
 
 
 //                .splineToLinearHeading(new Pose2d(70,70,Math.toRadians(45)), Math.toRadians(45), vel,accel)
@@ -508,7 +514,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -520,7 +526,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -531,7 +537,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -542,7 +548,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -555,7 +561,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -567,7 +573,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
 //                    gamepad1.rumble(1, 1, 400);
                         Actions.runBlocking(
                                 new ParallelAction(
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF),
                                         Intake.RollerCommand(Intake.IntakeRollerState.OFF)
                                 )
@@ -589,7 +595,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -601,7 +607,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -612,7 +618,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -623,7 +629,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -636,7 +642,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -648,7 +654,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
 //                    gamepad1.rumble(1, 1, 400);
                         Actions.runBlocking(
                                 new ParallelAction(
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF),
                                         Intake.RollerCommand(Intake.IntakeRollerState.OFF)
                                 )
@@ -668,7 +674,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -680,7 +686,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -691,7 +697,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -702,7 +708,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -715,7 +721,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -727,7 +733,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
 //                    gamepad1.rumble(1, 1, 400);
                         Actions.runBlocking(
                                 new ParallelAction(
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF),
                                         Intake.RollerCommand(Intake.IntakeRollerState.OFF)
                                 )
@@ -747,7 +753,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -759,7 +765,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -770,7 +776,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -781,7 +787,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -794,7 +800,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -806,7 +812,7 @@ public class Blue_Far_Nationals extends LinearOpMode {
 //                    gamepad1.rumble(1, 1, 400);
                         Actions.runBlocking(
                                 new ParallelAction(
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF),
                                         Intake.RollerCommand(Intake.IntakeRollerState.OFF)
                                 )
