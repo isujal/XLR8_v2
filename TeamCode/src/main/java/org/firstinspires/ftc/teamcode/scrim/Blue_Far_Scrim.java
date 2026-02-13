@@ -40,8 +40,8 @@ import org.firstinspires.ftc.teamcode.subsystem.Outtake;
 
 import java.util.Arrays;
 
-@Config
-@Autonomous(group =  " autos ",name="SB AUTO FAR SCRIM 🔵")
+//@Config
+//@Autonomous(group =  " autos ",name="SB AUTO FAR SCRIM 🔵")
 //@Deprecated
 public class Blue_Far_Scrim extends LinearOpMode {
     private RobotHardware robot = RobotHardware.getInstance();

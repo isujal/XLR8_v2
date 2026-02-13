@@ -40,8 +40,8 @@ import org.firstinspires.ftc.teamcode.subsystem.Outtake;
 
 import java.util.Arrays;
 
-@Config
-@Autonomous(group =  " autos ",name="SB AUTO FAR SCRIM🔴")
+//@Config
+//@Autonomous(group =  " autos ",name="SB AUTO FAR SCRIM🔴")
 //@Deprecated
 public class Red_Far_Scrim extends LinearOpMode {
     private RobotHardware robot = RobotHardware.getInstance();
@@ -153,8 +153,6 @@ public class Red_Far_Scrim extends LinearOpMode {
                 )))
                 .waitSeconds(0.3)
 
-
-
                 .build();
 
         Action trajectoryAction2 = drive.actionBuilder(new Pose2d(43, 12,Math.toRadians(90)))
@@ -162,12 +160,11 @@ public class Red_Far_Scrim extends LinearOpMode {
                                 new SequentialAction(
 
                                         new InstantAction(()-> new TurretCommand(outtake, Outtake.TurretState.SHOOT_OFF)),
-                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.SLOW)),
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.POW)),
                                         new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
                                 )
                         )
                 )
-
                 .strafeToConstantHeading(new Vector2d(30, 30))
                 .build();
 
@@ -225,7 +222,7 @@ public class Red_Far_Scrim extends LinearOpMode {
         Action trajectoryAction6 = drive.actionBuilder(new Pose2d(43, 12,Math.toRadians(90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
-                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.SLOW)),
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.POW)),
                                         new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
                                 )
                         )
@@ -287,7 +284,7 @@ public class Red_Far_Scrim extends LinearOpMode {
         Action trajectoryAction9 = drive.actionBuilder(new Pose2d(43, 12,Math.toRadians(90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
-                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.SLOW)),
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.POW)),
                                         new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
                                 )
                         )
@@ -353,7 +350,7 @@ public class Red_Far_Scrim extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -365,7 +362,7 @@ public class Red_Far_Scrim extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -376,7 +373,7 @@ public class Red_Far_Scrim extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -387,7 +384,7 @@ public class Red_Far_Scrim extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -400,7 +397,7 @@ public class Red_Far_Scrim extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -412,7 +409,7 @@ public class Red_Far_Scrim extends LinearOpMode {
 //                    gamepad1.rumble(1, 1, 400);
                         Actions.runBlocking(
                                 new ParallelAction(
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF),
                                         Intake.RollerCommand(Intake.IntakeRollerState.OFF)
                                 )
@@ -434,7 +431,7 @@ public class Red_Far_Scrim extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -446,7 +443,7 @@ public class Red_Far_Scrim extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -457,7 +454,7 @@ public class Red_Far_Scrim extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -468,7 +465,7 @@ public class Red_Far_Scrim extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -481,7 +478,7 @@ public class Red_Far_Scrim extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -493,7 +490,7 @@ public class Red_Far_Scrim extends LinearOpMode {
 //                    gamepad1.rumble(1, 1, 400);
                         Actions.runBlocking(
                                 new ParallelAction(
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF),
                                         Intake.RollerCommand(Intake.IntakeRollerState.OFF)
                                 )
@@ -513,7 +510,7 @@ public class Red_Far_Scrim extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -525,7 +522,7 @@ public class Red_Far_Scrim extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -536,7 +533,7 @@ public class Red_Far_Scrim extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -547,7 +544,7 @@ public class Red_Far_Scrim extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -560,7 +557,7 @@ public class Red_Far_Scrim extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -572,7 +569,7 @@ public class Red_Far_Scrim extends LinearOpMode {
 //                    gamepad1.rumble(1, 1, 400);
                         Actions.runBlocking(
                                 new ParallelAction(
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF),
                                         Intake.RollerCommand(Intake.IntakeRollerState.OFF)
                                 )

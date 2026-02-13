@@ -100,8 +100,8 @@ public class RobotHardware {
         endgame =hardwareMap.get(ServoImplEx.class,"endgame");
         shooter.setDirection(DcMotorSimple.Direction.FORWARD);
         upperFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
-//        lowerFeeder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        upperFeeder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lowerFeeder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        upperFeeder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         shooter.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
     }
 

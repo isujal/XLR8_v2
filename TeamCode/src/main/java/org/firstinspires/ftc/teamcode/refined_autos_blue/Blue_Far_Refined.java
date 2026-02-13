@@ -41,7 +41,7 @@ import org.firstinspires.ftc.teamcode.subsystem.Outtake;
 import java.util.Arrays;
 
 @Config
-@Autonomous(name="SB AUTO FAR 🔵")
+//@Autonomous(name="SB AUTO FAR 🔵")
 //@Deprecated
 public class  Blue_Far_Refined extends LinearOpMode {
     private RobotHardware robot = RobotHardware.getInstance();

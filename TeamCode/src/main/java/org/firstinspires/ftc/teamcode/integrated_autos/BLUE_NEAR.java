@@ -42,7 +42,7 @@ import java.util.Arrays;
 
 @Config
 
-@Autonomous(name="BLUE NEAR 🔵")
+//@Autonomous(name="BLUE NEAR 🔵")
 public class BLUE_NEAR extends LinearOpMode {
     private RobotHardware robot = RobotHardware.getInstance();
     String finalMotif;

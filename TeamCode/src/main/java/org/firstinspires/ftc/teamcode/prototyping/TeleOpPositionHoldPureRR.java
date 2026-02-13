@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@TeleOp(name = "Position Hold (Pure RR)")
-@Config
+//@TeleOp(name = "Position Hold (Pure RR)")
+//@Config
 public class TeleOpPositionHoldPureRR extends LinearOpMode {
 
 

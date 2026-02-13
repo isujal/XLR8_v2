@@ -41,7 +41,7 @@ import org.firstinspires.ftc.teamcode.subsystem.Outtake;
 import java.util.Arrays;
 
 @Config
-@Autonomous(name="NEW FAR 🔴")
+//@Autonomous(name="NEW FAR 🔴")
 //@Deprecated
 public class new_red_far extends LinearOpMode {
     private RobotHardware robot = RobotHardware.getInstance();

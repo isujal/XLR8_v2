@@ -40,8 +40,8 @@ import org.firstinspires.ftc.teamcode.subsystem.Outtake;
 
 import java.util.Arrays;
 
-@Config
-@Autonomous(name="SB AUTO NEAR GO🔴")
+//@Config
+//@Autonomous(name="SB AUTO NEAR GO🔴")
 //@Deprecated
 public class Red_Near_Refined_GO extends LinearOpMode {
     private RobotHardware robot = RobotHardware.getInstance();

@@ -65,8 +65,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.ArrayList;
 import java.util.List;
 
-@Config
-@TeleOp(name = "SB5 RAPID", group = "ATELEOP")
+//@Config
+//@TeleOp(name = "SB5 RAPID", group = "ATELEOP")
 public class SB5_rapid extends LinearOpMode {
     private static RobotHardware robot=RobotHardware.getInstance();
 

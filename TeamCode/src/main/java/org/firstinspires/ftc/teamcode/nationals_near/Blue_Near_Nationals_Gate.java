@@ -170,7 +170,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
         Action trajectoryAction3 = drive.actionBuilder(new Pose2d(-5, -16.01,Math.toRadians(-90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
-                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.SLOW)),
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.POW)),
                                         new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
                                 )
                         )
@@ -250,12 +250,12 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new ParallelAction(
                                         new InstantAction(() -> new ServoCommand(intake,Intake.IntakeServoState.RELEASE)),
-                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.SLOW))
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.POW))
                                 )
                         )
                 )
                 .splineToLinearHeading(new Pose2d(18,-60,Math.toRadians(-130)), Math.toRadians(-145))
-                .strafeToLinearHeading(new Vector2d(15.5, -63), Math.toRadians(-125))
+                .strafeToLinearHeading(new Vector2d(14.5, -63), Math.toRadians(-120))
                 .waitSeconds(0.2)
                 .strafeToLinearHeading(new Vector2d(23, -61), Math.toRadians(-145))
 
@@ -311,7 +311,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
         Action trajectoryAction7 = drive.actionBuilder(new Pose2d(-5, -16,Math.toRadians(-90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
-                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.SLOW)),
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.POW)),
                                         new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
                                 )
                         )
@@ -407,7 +407,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -419,7 +419,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -430,7 +430,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -441,7 +441,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -454,7 +454,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -466,7 +466,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
 //                    gamepad1.rumble(1, 1, 400);
                         Actions.runBlocking(
                                 new ParallelAction(
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF),
                                         Intake.RollerCommand(Intake.IntakeRollerState.OFF)
                                 )
@@ -488,7 +488,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -500,7 +500,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -511,7 +511,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -522,7 +522,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -535,7 +535,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -547,7 +547,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
 //                    gamepad1.rumble(1, 1, 400);
                         Actions.runBlocking(
                                 new ParallelAction(
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF),
                                         Intake.RollerCommand(Intake.IntakeRollerState.OFF)
                                 )
@@ -568,7 +568,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -580,7 +580,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -591,7 +591,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -602,7 +602,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -615,7 +615,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -627,7 +627,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
 //                    gamepad1.rumble(1, 1, 400);
                         Actions.runBlocking(
                                 new ParallelAction(
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF),
                                         Intake.RollerCommand(Intake.IntakeRollerState.OFF)
                                 )
@@ -644,7 +644,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -656,7 +656,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -667,7 +667,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -678,7 +678,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -691,7 +691,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -703,7 +703,7 @@ public class Blue_Near_Nationals_Gate extends LinearOpMode {
 //                    gamepad1.rumble(1, 1, 400);
                         Actions.runBlocking(
                                 new ParallelAction(
-                                        Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF),
                                         Intake.RollerCommand(Intake.IntakeRollerState.OFF)
                                 )

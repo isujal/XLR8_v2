@@ -40,14 +40,13 @@ import org.firstinspires.ftc.teamcode.subsystem.Outtake;
 
 import java.util.Arrays;
 
-@Config
-@Autonomous(group =  " autos ", name="SB AUTO NEAR SCRIM 🔵")
+//@Config
+//@Autonomous(group =  " autos ", name="SB AUTO NEAR SCRIM 🔵")
 //@Deprecated
 public class Blue_Near_Scrim_New extends LinearOpMode {
     private RobotHardware robot = RobotHardware.getInstance();
     //Subsystems
     Outtake outtake ;
-
     Intake intake ;
     Feeder feeder ;
     double actualPos;

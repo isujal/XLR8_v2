@@ -44,8 +44,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.ArrayList;
 import java.util.List;
 
-@Config
-@TeleOp
+//@Config
+//@TeleOp
 public class EDUCO_teleop_v2 extends LinearOpMode {
     public static double c;
     public static double target = 0;

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.SOLO;
+package org.firstinspires.ftc.teamcode.nationals_SOLO;
 
 
 import static org.firstinspires.ftc.teamcode.subsystem.Outtake.extendShooterUsingVelocity;
@@ -41,9 +41,9 @@ import org.firstinspires.ftc.teamcode.subsystem.Outtake;
 import java.util.Arrays;
 
 @Config
-@Autonomous(group = " autos ", name="SB SOLO 🔵")
+@Autonomous(group = " auto solo ", name="SB SOLO🔴-> near+far")
 //@Deprecated
-public class Blue_Solo extends LinearOpMode {
+public class Red_Solo extends LinearOpMode {
     private RobotHardware robot = RobotHardware.getInstance();
     //Subsystems
     Outtake outtake ;
@@ -87,7 +87,7 @@ public class Blue_Solo extends LinearOpMode {
     private ElapsedTime timer = new ElapsedTime();
 
     VelConstraint vel =new MinVelConstraint(Arrays.asList(new TranslationalVelConstraint(30)));
-    AccelConstraint accel = new ProfileAccelConstraint(-45,40);
+    AccelConstraint accel = new ProfileAccelConstraint(-45,50);
     AccelConstraint accel2 = new ProfileAccelConstraint(-45,5);
 
 
@@ -100,7 +100,7 @@ public class Blue_Solo extends LinearOpMode {
         outtake = new Outtake(robot);
         feeder = new Feeder(robot);
 
-        Pose2d  startPose = new Pose2d(-36, -55, Math.toRadians(-90));
+        Pose2d  startPose = new Pose2d(-36, 55, Math.toRadians(90));
         drive = new MecanumDrive(hardwareMap, startPose);
         robot.shooter.setVelocityPIDFCoefficients(P,I,D,F);
         actualPos = robot.turretEncoder.getCurrentPosition();
@@ -114,23 +114,23 @@ public class Blue_Solo extends LinearOpMode {
 //        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON)),
 //        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.ON)),
 
-        Action trajectoryAction0 = drive.actionBuilder(new Pose2d(-36, -55,Math.toRadians(-90)))
+        Action trajectoryAction0 = drive.actionBuilder(new Pose2d(-36, 55,Math.toRadians(90)))
                 .afterTime(0.01, ()->Actions.runBlocking( new ParallelAction(
 
-                        new InstantAction(()-> new TurretCommand(outtake, Outtake.TurretState.BUFF_RED)),
+                        new InstantAction(()-> new TurretCommand(outtake, Outtake.TurretState.SHOOT_NEAR)),
                         new InstantAction(()-> new ShooterCommand(outtake, Outtake.ShooterState.RELEASE)),
                         new InstantAction(()-> new HoodCommand(outtake, Outtake.HoodState.AUTO_NEAR)),
                         new InstantAction(()-> new ServoCommand(intake, Intake.IntakeServoState.AUTO_IN))
 
                 )))
-                .strafeToLinearHeading(new Vector2d(-7, -13), Math.toRadians(-90))
+                .strafeToLinearHeading(new Vector2d(-7, 16.01), Math.toRadians(90))
 
 
                 .build();
 
-        Action trajectoryAction = drive.actionBuilder(new Pose2d(-7, -13,Math.toRadians(-90)))
+        Action trajectoryAction = drive.actionBuilder(new Pose2d(-7, 16.01,Math.toRadians(90)))
 
-                .strafeToLinearHeading(new Vector2d(-5,-16), Math.toRadians(-90))
+                .strafeToLinearHeading(new Vector2d(-7,16), Math.toRadians(90))
                 .waitSeconds(0.1)
                 .stopAndAdd(()->Actions.runBlocking(new SequentialAction(
 
@@ -160,49 +160,54 @@ public class Blue_Solo extends LinearOpMode {
 
 
                 .build();
-        Action trajectoryAction2 = drive.actionBuilder(new Pose2d(-5, -16,Math.toRadians(-90)))
+        Action trajectoryAction2 = drive.actionBuilder(new Pose2d(-7, 16,Math.toRadians(90)))
 
-                .strafeToLinearHeading(new Vector2d(-5, -16.01), Math.toRadians(-90))
+                .strafeToLinearHeading(new Vector2d(-7, 16.01), Math.toRadians(90))
 
                 .build();
 
 
-        Action trajectoryAction3 = drive.actionBuilder(new Pose2d(-5, -16.01,Math.toRadians(-90)))
+        Action trajectoryAction3 = drive.actionBuilder(new Pose2d(-7, 16.01,Math.toRadians(90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
-                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.POW)),
                                         new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
                                 )
                         )
                 )
-                .strafeToLinearHeading(new Vector2d(18, -32), Math.toRadians(-90))
+                .strafeToLinearHeading(new Vector2d(18, 32), Math.toRadians(90))
 
                 .build();
 
 
-        Action trajectoryAction4x = drive.actionBuilder(new Pose2d(18, -32,Math.toRadians(-90)))
+        Action trajectoryAction4x = drive.actionBuilder(new Pose2d(18, 32,Math.toRadians(90)))
 
-                .strafeToLinearHeading(new Vector2d(18, -60), Math.toRadians(-90), vel, accel)
+                .strafeToLinearHeading(new Vector2d(18, 60), Math.toRadians(90), vel, accel)
+
 
 
                 .build();
 
 
 
-        Action trajectoryAction4 = drive.actionBuilder(new Pose2d(18, -60,Math.toRadians(-90)))
+        Action trajectoryAction4 = drive.actionBuilder(new Pose2d(18, 60,Math.toRadians(90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
                                         new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
-                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF)),
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))   ,
+                                        new InstantAction(() -> new TurretCommand(outtake, Outtake.TurretState.SHOOT_NEAR_OFF)),
                                         new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
-                                )
+                                                                       )
                         )
                 )
-                .strafeToLinearHeading(new Vector2d(-1, -13), Math.toRadians(-90))
+                .strafeToLinearHeading(new Vector2d(18, 40), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(6, 60), Math.toRadians(90))
+                .waitSeconds(0.3)
+                .strafeToLinearHeading(new Vector2d(-1, 13), Math.toRadians(90))
                 .build();
 
 
-        Action trajectoryAction5 = drive.actionBuilder(new Pose2d(-1, -13,Math.toRadians(-90)))
+        Action trajectoryAction5 = drive.actionBuilder(new Pose2d(-1, 13,Math.toRadians(90)))
 
                 .waitSeconds(0.2)
                 .stopAndAdd(()->Actions.runBlocking(new SequentialAction(
@@ -227,7 +232,7 @@ public class Blue_Solo extends LinearOpMode {
 
 
                 )))
-                .waitSeconds(0.1)
+                .waitSeconds(0.2)
 
                 .build();
 
@@ -235,39 +240,37 @@ public class Blue_Solo extends LinearOpMode {
 
 
 
-        Action trajectoryAction7 = drive.actionBuilder(new Pose2d(-1, -13,Math.toRadians(-90)))
+        Action trajectoryAction7 = drive.actionBuilder(new Pose2d(-1, 13,Math.toRadians(90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
-                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.POW)),
                                         new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
                                 )
                         )
                 )
-                .strafeToLinearHeading(new Vector2d(-5, -16), Math.toRadians(-90))
+                .strafeToLinearHeading(new Vector2d(-7, 16), Math.toRadians(90))
 
-                .strafeToLinearHeading(new Vector2d(-6, -57), Math.toRadians(-90), vel,accel)
+                .strafeToLinearHeading(new Vector2d(-6, 57), Math.toRadians(90), vel,accel)
                 .build();
 
 
 
-        Action trajectoryAction8 = drive.actionBuilder(new Pose2d(-6, -57,Math.toRadians(-90)))
+        Action trajectoryAction8 = drive.actionBuilder(new Pose2d(-6, 57,Math.toRadians(90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
                                         new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
-                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF)),
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))        ,
                                         new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
-                                )
+                                                                   )
                         )
                 )
 
-                .strafeToLinearHeading(new Vector2d(4, -40), Math.toRadians(-90))
-                .strafeToLinearHeading(new Vector2d(4, -62), Math.toRadians(-90))
-                .waitSeconds(0.3)
-                .strafeToLinearHeading(new Vector2d(-5, -16), Math.toRadians(-90))
+
+                .strafeToLinearHeading(new Vector2d(-7, 16), Math.toRadians(90))
                 .build();
 
 
-        Action trajectoryAction9 = drive.actionBuilder(new Pose2d(-5, -16,Math.toRadians(-90)))
+        Action trajectoryAction9 = drive.actionBuilder(new Pose2d(-7, 16,Math.toRadians(90)))
 
                 .waitSeconds(0.1)
                 .stopAndAdd(()->Actions.runBlocking(new SequentialAction(
@@ -301,46 +304,50 @@ public class Blue_Solo extends LinearOpMode {
 
 
 
-        Action trajectoryAction10 = drive.actionBuilder(new Pose2d(-5, -16,Math.toRadians(-90)))
+        Action trajectoryAction10 = drive.actionBuilder(new Pose2d(-7, 16,Math.toRadians(90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
-                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.POW)),
                                         new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
                                 )
                         )
                 )
-                .strafeToLinearHeading(new Vector2d(42.5, -32), Math.toRadians(-90))
+                .strafeToLinearHeading(new Vector2d(42.5, 30), Math.toRadians(90))
 
                 .build();
 
 
-        Action trajectoryAction11 = drive.actionBuilder(new Pose2d(42.5, -32,Math.toRadians(-90)))
-
-                .strafeToLinearHeading(new Vector2d(42.5, -58), Math.toRadians(-90), vel, accel)
-
-
-                .build();
-
-
-        Action trajectoryAction12 = drive.actionBuilder(new Pose2d(42.5, -58,Math.toRadians(-90)))
+        Action trajectoryAction11 = drive.actionBuilder(new Pose2d(42.5, 30,Math.toRadians(90)))
                 .afterTime(0.01,() ->Actions.runBlocking(
                                 new SequentialAction(
-                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
-                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF)),
-                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF)),
-                                        new InstantAction(()-> new TurretCommand(outtake, Outtake.TurretState.TRACK_OFF)),
+                                        new InstantAction(()-> new TurretCommand(outtake, Outtake.TurretState.SHOOT)),
                                         new InstantAction(()-> new ShooterCommand(outtake, Outtake.ShooterState.FAR_BLUE)),
                                         new InstantAction(()-> new HoodCommand(outtake, Outtake.HoodState.AUTO_FAR))
-
 
                                 )
                         )
                 )
-                .strafeToLinearHeading(new Vector2d(54, -13), Math.toRadians(-90))
+                .strafeToLinearHeading(new Vector2d(42.5, 58), Math.toRadians(90), vel, accel)
+
+
                 .build();
 
 
-        Action trajectoryAction13 = drive.actionBuilder(new Pose2d(54, -13,Math.toRadians(-90)))
+        Action trajectoryAction12 = drive.actionBuilder(new Pose2d(42.5, 58,Math.toRadians(90)))
+                .afterTime(0.01,() ->Actions.runBlocking(
+                                new SequentialAction(
+                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.OFF)),
+                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.OFF)),
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.OFF))
+
+                                )
+                        )
+                )
+                .strafeToLinearHeading(new Vector2d(54, 13), Math.toRadians(90))
+                .build();
+
+
+        Action trajectoryAction13 = drive.actionBuilder(new Pose2d(54, 13,Math.toRadians(90)))
 
                 .waitSeconds(0.4)
                 .stopAndAdd(()->Actions.runBlocking(new SequentialAction(
@@ -370,9 +377,9 @@ public class Blue_Solo extends LinearOpMode {
 
                 .build();
 
-        Action trajectoryAction14 = drive.actionBuilder(new Pose2d(54, -13,Math.toRadians(-90)))
+        Action trajectoryAction14 = drive.actionBuilder(new Pose2d(54, 13,Math.toRadians(90)))
 
-                .strafeToLinearHeading(new Vector2d(54, -54), Math.toRadians(-90))
+                .strafeToLinearHeading(new Vector2d(54, 54), Math.toRadians(90))
                 .build();
 
 
@@ -397,7 +404,7 @@ public class Blue_Solo extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -409,7 +416,7 @@ public class Blue_Solo extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -420,7 +427,7 @@ public class Blue_Solo extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -431,7 +438,7 @@ public class Blue_Solo extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -444,7 +451,7 @@ public class Blue_Solo extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -456,7 +463,7 @@ public class Blue_Solo extends LinearOpMode {
 //                    gamepad1.rumble(1, 1, 400);
                         Actions.runBlocking(
                                 new ParallelAction(
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF),
                                         Intake.RollerCommand(Intake.IntakeRollerState.OFF)
                                 )
@@ -478,7 +485,7 @@ public class Blue_Solo extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -490,7 +497,7 @@ public class Blue_Solo extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -501,7 +508,7 @@ public class Blue_Solo extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -512,7 +519,7 @@ public class Blue_Solo extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -525,7 +532,7 @@ public class Blue_Solo extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -537,7 +544,7 @@ public class Blue_Solo extends LinearOpMode {
 //                    gamepad1.rumble(1, 1, 400);
                         Actions.runBlocking(
                                 new ParallelAction(
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF),
                                         Intake.RollerCommand(Intake.IntakeRollerState.OFF)
                                 )
@@ -558,7 +565,7 @@ public class Blue_Solo extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -570,7 +577,7 @@ public class Blue_Solo extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -581,7 +588,7 @@ public class Blue_Solo extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -592,7 +599,7 @@ public class Blue_Solo extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -605,7 +612,7 @@ public class Blue_Solo extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -617,7 +624,7 @@ public class Blue_Solo extends LinearOpMode {
 //                    gamepad1.rumble(1, 1, 400);
                         Actions.runBlocking(
                                 new ParallelAction(
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF),
                                         Intake.RollerCommand(Intake.IntakeRollerState.OFF)
                                 )
@@ -634,7 +641,7 @@ public class Blue_Solo extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -646,7 +653,7 @@ public class Blue_Solo extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -657,7 +664,7 @@ public class Blue_Solo extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.ON)
                                 )
                         );
@@ -668,7 +675,7 @@ public class Blue_Solo extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -681,7 +688,7 @@ public class Blue_Solo extends LinearOpMode {
                                 new ParallelAction(
                                         Intake.IntakeCommand(Intake.IntakeServoState.IN),
                                         Intake.RollerCommand(Intake.IntakeRollerState.ON),
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF)
                                 )
                         );
@@ -693,7 +700,7 @@ public class Blue_Solo extends LinearOpMode {
 //                    gamepad1.rumble(1, 1, 400);
                         Actions.runBlocking(
                                 new ParallelAction(
-                                        Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                                        Feeder.UFCommand(Feeder.UpperFeederState.POW),
                                         Feeder.LFCommand(Feeder.LowerFeederState.OFF),
                                         Intake.RollerCommand(Intake.IntakeRollerState.OFF)
                                 )
@@ -772,7 +779,7 @@ public class Blue_Solo extends LinearOpMode {
             telemetry.addLine("ROBOT INIT MODE");
             Actions.runBlocking(
 
-                    AutoInitSeq.InitActionNearBlue(intake, outtake, feeder)
+                    AutoInitSeq.InitAction(intake, outtake, feeder)
 
             );
 

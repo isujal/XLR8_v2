@@ -33,8 +33,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.ArrayList;
 import java.util.List;
 
-@Config
-@TeleOp
+//@Config
+//@TeleOp
 public class cool extends LinearOpMode {
 
     /* ================= TUNABLE PARAMETERS ================= */

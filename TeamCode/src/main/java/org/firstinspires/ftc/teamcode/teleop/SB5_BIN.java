@@ -66,12 +66,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Config
-@TeleOp(name = "SB5 LT Optimised", group = "ATELEOP")
+@TeleOp(name = "LT Optimised", group = "ATELEOP")
 public class SB5_BIN extends LinearOpMode {
     private static RobotHardware robot=RobotHardware.getInstance();
 
     public static double pose_x,pose_y,pose_heading;
     public static double servo_low = 0.88; //0.88 <- 0.8
+    public static double delay = 0.5; //0.88 <- 0.8
     public static double servo_high = 0.9;//0.9 <- 0.88
     public static double LOW = 1250;//0.9 <- 0.88
     public static double HIGH = 1450;//0.9 <- 0.88
@@ -128,6 +129,7 @@ public class SB5_BIN extends LinearOpMode {
     public static double previous_error;
     public double derivative;
     public static double pid;
+    public static double current  = 3.0;
     public double a;
     public static double turnBias = 0.0; // units SAME as z_tag
 
@@ -570,31 +572,61 @@ public class SB5_BIN extends LinearOpMode {
             }
 
             if (!robot.feederBeam.getState() && counterFeed==0 && intakeFlag){
+
                 counterFeed += 1;
             }
             if (robot.feederBeam.getState() && counterFeed ==1 && intakeFlag){
                 counterFeed += 1;
+
                 shoot1 = true;
             }
             if (counterFeed == 2 && !robot.intakeBeam.getState() && intakeFlag)
             {
+
                 secondBallTimer.reset();
                 secondBallFlag = true;
             }
-            if(secondBallFlag)
+            if(secondBallFlag  || robot.lowerFeeder.getCurrent(CurrentUnit.AMPS)>current )
             {
                 if(secondBallTimer.milliseconds()>secondBallTime){
                     counterFeed = 4;
                     runningActions.add(
-                            new ParallelAction(
-                                    Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+                            new SequentialAction(
 
-                                    Feeder.LFCommand(Feeder.LowerFeederState.OFF),
+                                    new ParallelAction(
+                                            Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+
+                                            Feeder.LFCommand(Feeder.LowerFeederState.OFF),
 //                                    Outtake.HoodCommand(Outtake.HoodState.NEAR_END),
-                                    Outtake.ShooterCommand(Outtake.ShooterState.NEAR)
+                                            Outtake.ShooterCommand(Outtake.ShooterState.NEAR)
+                                    ),
+                                    new SleepAction(delay),
 
+                                    new ParallelAction(
+                                            Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+
+                                            Feeder.LFCommand(Feeder.LowerFeederState.OFF),
+//                                    Outtake.HoodCommand(Outtake.HoodState.NEAR_END),
+                                            Outtake.ShooterCommand(Outtake.ShooterState.NEAR)
+                                    )
                             )
+
+
+
+
+
+
+
+//                                    new ParallelAction(
+//                                            Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+//
+//                                            Feeder.LFCommand(Feeder.LowerFeederState.OFF),
+////                                    Outtake.HoodCommand(Outtake.HoodState.NEAR_END),
+//                                            Outtake.ShooterCommand(Outtake.ShooterState.NEAR)
+//                                    )
                     );
+
+
                     secondBallFlag = false;
 
                 }
@@ -602,11 +634,11 @@ public class SB5_BIN extends LinearOpMode {
 
             }
 
-            if(!secondBallFlag && counterFeed >2)
+            if(!secondBallFlag && counterFeed >2 || robot.lowerFeeder.getCurrent(CurrentUnit.AMPS)>current)
             {
                 runningActions.add(
                         new ParallelAction(
-                                Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+//                                Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
 
                                 Feeder.LFCommand(Feeder.LowerFeederState.OFF),
 //                                Outtake.HoodCommand(Outtake.HoodState.NEAR_END),
@@ -618,11 +650,11 @@ public class SB5_BIN extends LinearOpMode {
                 counterFeed += 1;
                 zeroFlag = true;
             }
-            if (counterFeed==3 && robot.feederBeam.getState()&& intakeFlag){
+            if (counterFeed==3 && robot.feederBeam.getState()&& intakeFlag || robot.lowerFeeder.getCurrent(CurrentUnit.AMPS)>current){
                 counterFeed += 1;
                 runningActions.add(
                         new ParallelAction(
-                                Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+//                                Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
 
                                 Feeder.LFCommand(Feeder.LowerFeederState.OFF),
 //                                Outtake.HoodCommand(Outtake.HoodState.NEAR_END),
@@ -633,11 +665,11 @@ public class SB5_BIN extends LinearOpMode {
                 shoot2 = true;
             }
 
-            if (counterFeed==4 && !robot.intakeBeam.getState()&& intakeFlag){
+            if (counterFeed==4 && !robot.intakeBeam.getState()&& intakeFlag  || robot.lowerFeeder.getCurrent(CurrentUnit.AMPS)>current){
                 counterFeed += 1;
                 runningActions.add(
                         new ParallelAction(
-                                Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+//                                Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
 
                                 Feeder.LFCommand(Feeder.LowerFeederState.OFF),
 //                                Outtake.HoodCommand(Outtake.HoodState.NEAR_END),
@@ -930,9 +962,16 @@ public class SB5_BIN extends LinearOpMode {
 
             if (currentGamepad2.a && !previousGamepad2.a)
             {
-                intakeFlag = false;
+                Actions.runBlocking(
+                        new SequentialAction(
+                                new ParallelAction(
+                                        new InstantAction(() -> new RollerCommand(intake, Intake.IntakeRollerState.ON)),
+                                        new InstantAction(()-> new LFCommand(feeder,Feeder.LowerFeederState.ON))
+                                )
+                        )
+                );
             }
-//
+
             if(singleShoot)
             {
                 runningActions.add(
@@ -1037,16 +1076,24 @@ public class SB5_BIN extends LinearOpMode {
             packet.put("Target Velocity", Globals.curretShooterStateVelMode);
             packet.put("Current Velocity", robot.shooter.getVelocity());
 
+            telemetry.addData("counterFeed", counterFeed);
+            telemetry.addData("counterB", counterB);
             telemetry.addData("y_tag", y_tag);
             telemetry.addData("z_tag",  z_tag);
-            telemetry.addData("Shooter State",  robot.shooter.getVelocity());
-            telemetry.addData("hood ",robot.hood.getPosition());
             telemetry.addData("loop (ms)", "%.2f", loopTimer.milliseconds());
             telemetry.addData("Velocity : ", robot.shooter.getVelocity());
             telemetry.addData("HoodPos : ", robot.hood.getPosition());
             telemetry.addData("tagID : ", tagID);
             telemetry.addData("farFlag : ", farFlag);
             telemetry.addData("nearFlag : ", nearFlag);
+
+
+            printDriveTelemetry();
+
+            telemetry.addData("Intake Current : ", robot.intakeRoller.getCurrent(CurrentUnit.AMPS));
+            telemetry.addData("UF Current : ", robot.upperFeeder.getCurrent(CurrentUnit.AMPS));
+            telemetry.addData("LF Current : ", robot.lowerFeeder.getCurrent(CurrentUnit.AMPS));
+            telemetry.addData("Shooter Current : ", robot.shooter.getCurrent(CurrentUnit.AMPS));
 
             telemetry.update();
         }

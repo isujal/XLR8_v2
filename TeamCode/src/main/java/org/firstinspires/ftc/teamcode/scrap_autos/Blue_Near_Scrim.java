@@ -40,8 +40,8 @@ import org.firstinspires.ftc.teamcode.subsystem.Outtake;
 
 import java.util.Arrays;
 
-@Config
-@Autonomous( name="SB AUTO NEAR SCRIM OG🔵")
+//@Config
+//@Autonomous( name="SB AUTO NEAR SCRIM OG🔵")
 //@Deprecated
 public class Blue_Near_Scrim extends LinearOpMode {
     private RobotHardware robot = RobotHardware.getInstance();

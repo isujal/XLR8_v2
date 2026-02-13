@@ -24,8 +24,8 @@ public class Globals {
     public static double upperfeederOn = -1;
     public static double upperfeederOff = 0;
     public static double upperfeederReverse = 1;
-    public static double upperfeederPow = -0.5;
-    public static double upperfeederSlow = 0.1;
+    public static double upperfeederPow = 0.1;
+    public static double upperfeederSlow = 0.4;
 
     public static double lowerfeederOn = 1;
     public static double lowerfeederOff = 0;
@@ -49,7 +49,7 @@ public class Globals {
     public static double feed = 0.05;  // 0.03
 //    ki_turret = 0, kd_turret = 0.03;
     public static double hoodInit = 0.91;  // previous value = 0.88
-    public static double eg_init = 0.1;  // previous value = 0.93
+    public static double eg_init = 0.3;  // previous value = 0.93
     public static double eg_release = 1;  // previous vaalue = 0.93
     public static double eg_pos = 0;  // previous value = 0.93
     public static double hoodFar = 0.82, hoodFarAuto = 0.89, hoodNearAuto = 0.94, hoodNearEnd = 0.88, hoodNearStart = 1, hoodRelease = 0, hoodPos;

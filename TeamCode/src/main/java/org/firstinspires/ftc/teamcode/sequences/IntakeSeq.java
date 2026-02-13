@@ -17,7 +17,7 @@ public class IntakeSeq {
         return new ParallelAction(
                 Intake.IntakeCommand(Intake.IntakeServoState.IN),
                 Intake.RollerCommand(Intake.IntakeRollerState.ON),
-//                Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+                Feeder.UFCommand(Feeder.UpperFeederState.OFF),
                 Feeder.LFCommand(Feeder.LowerFeederState.ON)
 //                Outtake.TurretCommand(Outtake.TurretState.INIT)
 //                Outtake.HoodCommand(Outtake.HoodState.INIT)

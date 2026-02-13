@@ -41,7 +41,7 @@ import org.firstinspires.ftc.teamcode.subsystem.Outtake;
 import java.util.Arrays;
 
 @Config
-@Autonomous(name="SB AUTO FAR SCRIM OG🔴")
+//@Autonomous(name="SB AUTO FAR SCRIM OG🔴")
 //@Deprecated
 public class scrim_far_red extends LinearOpMode {
     private RobotHardware robot = RobotHardware.getInstance();

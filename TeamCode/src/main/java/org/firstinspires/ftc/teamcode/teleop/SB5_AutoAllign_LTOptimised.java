@@ -72,7 +72,7 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
 
     public static double pose_x,pose_y,pose_heading;
     public static double servo_low = 0.88; //0.88 <- 0.8
-    public static double delay = 0.3; //0.88 <- 0.8
+    public static double delay = 0.5; //0.88 <- 0.8
     public static double servo_high = 0.9;//0.9 <- 0.88
     public static double LOW = 1250;//0.9 <- 0.88
     public static double HIGH = 1450;//0.9 <- 0.88
@@ -129,6 +129,7 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
     public static double previous_error;
     public double derivative;
     public static double pid;
+    public static double current  = 3.0;
     public double a;
     public static double turnBias = 0.0; // units SAME as z_tag
 
@@ -392,12 +393,17 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
         robot.resetEncoder();
 
         waitForStart();
+
+
+
         loopTimer.reset();
         TurretPID.start();
         Campid.start();
 
         while (opModeIsActive()){
             loopTimer.reset();
+
+
 
             for (LynxModule hub : allHubs) {
                 hub.clearBulkCache();
@@ -413,7 +419,6 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
             // Cap both values between -100 and +100
             Globals.turret_imu_track = clamp(Globals.turret_imu_track, -85, 85);
             Globals.currentTurretState = clamp(Globals.currentTurretState, -85, 85);
-
 
             pose_x = drive.localizer.getPose().position.x;
             pose_y = drive.localizer.getPose().position.y;
@@ -465,6 +470,9 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
                     ),
                     -gamepad1.right_stick_x*turn
             ));
+            
+            
+
 
 //            drive.driveFieldCentric(-gamepad1.left_stick_x,
 //                    -gamepad1.left_stick_y,
@@ -485,6 +493,8 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
             // Intake and Store Artifacts
 
             //TODO: BASIC
+
+
 
 //            drive.updatePoseEstimate();
             if (currentGamepad1.right_trigger > 0)
@@ -571,12 +581,10 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
             }
 
             if (!robot.feederBeam.getState() && counterFeed==0 && intakeFlag){
-
                 counterFeed += 1;
             }
             if (robot.feederBeam.getState() && counterFeed ==1 && intakeFlag){
                 counterFeed += 1;
-
                 shoot1 = true;
             }
             if (counterFeed == 2 && !robot.intakeBeam.getState() && intakeFlag)
@@ -585,12 +593,21 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
                 secondBallTimer.reset();
                 secondBallFlag = true;
             }
-            if(secondBallFlag)
+            if(secondBallFlag   )
             {
                 if(secondBallTimer.milliseconds()>secondBallTime){
                     counterFeed = 4;
                     runningActions.add(
+                            new SequentialAction(
 
+                                    new ParallelAction(
+                                            Feeder.UFCommand(Feeder.UpperFeederState.SLOW),
+
+                                            Feeder.LFCommand(Feeder.LowerFeederState.OFF),
+//                                    Outtake.HoodCommand(Outtake.HoodState.NEAR_END),
+                                            Outtake.ShooterCommand(Outtake.ShooterState.NEAR)
+                                    ),
+                                    new SleepAction(delay),
 
                                     new ParallelAction(
                                             Feeder.UFCommand(Feeder.UpperFeederState.OFF),
@@ -599,6 +616,21 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
 //                                    Outtake.HoodCommand(Outtake.HoodState.NEAR_END),
                                             Outtake.ShooterCommand(Outtake.ShooterState.NEAR)
                                     )
+                            )
+
+
+
+
+
+
+
+//                                    new ParallelAction(
+//                                            Feeder.UFCommand(Feeder.UpperFeederState.OFF),
+//
+//                                            Feeder.LFCommand(Feeder.LowerFeederState.OFF),
+////                                    Outtake.HoodCommand(Outtake.HoodState.NEAR_END),
+//                                            Outtake.ShooterCommand(Outtake.ShooterState.NEAR)
+//                                    )
                     );
 
 
@@ -609,7 +641,7 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
 
             }
 
-            if(!secondBallFlag && counterFeed >2)
+            if(!secondBallFlag && counterFeed >2 )
             {
                 runningActions.add(
                         new ParallelAction(
@@ -625,7 +657,7 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
                 counterFeed += 1;
                 zeroFlag = true;
             }
-            if (counterFeed==3 && robot.feederBeam.getState()&& intakeFlag){
+            if (counterFeed==3 && robot.feederBeam.getState()&& intakeFlag ){
                 counterFeed += 1;
                 runningActions.add(
                         new ParallelAction(
@@ -640,7 +672,7 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
                 shoot2 = true;
             }
 
-            if (counterFeed==4 && !robot.intakeBeam.getState()&& intakeFlag){
+            if (counterFeed==4 && !robot.intakeBeam.getState()&& intakeFlag  ){
                 counterFeed += 1;
                 runningActions.add(
                         new ParallelAction(
@@ -678,10 +710,17 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
             {
                 Actions.runBlocking(
                         new SequentialAction(
-                                new ParallelAction(
-                                        new InstantAction(()-> counterB = 0),
-                                        new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
-                                        new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
+                                new SequentialAction(
+
+                                        new ParallelAction(
+                                                new InstantAction(()-> counterB = 0),
+                                                new InstantAction(()-> intakeFlag = false)
+                                        ),
+                                        new SleepAction(0.1), //0.2
+                                        new ParallelAction(
+                                                new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
+                                                new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
+                                        )
                                 ),
 
                                 new SleepAction(0.3), //0.2
@@ -714,6 +753,7 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
                         new SequentialAction(
                                 new ParallelAction(
                                         new InstantAction(()-> counterB = 0),
+                                        new InstantAction(()-> intakeFlag = false),
                                         new InstantAction(()-> new UFCommand(feeder,Feeder.UpperFeederState.ON)),
                                         new InstantAction(()-> new RollerCommand(intake, Intake.IntakeRollerState.OFF))
                                 ),
@@ -939,7 +979,7 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
             {
                 intakeFlag = false;
             }
-//
+
             if(singleShoot)
             {
                 runningActions.add(
@@ -1044,16 +1084,6 @@ public class SB5_AutoAllign_LTOptimised extends LinearOpMode {
             packet.put("Target Velocity", Globals.curretShooterStateVelMode);
             packet.put("Current Velocity", robot.shooter.getVelocity());
 
-            telemetry.addData("y_tag", y_tag);
-            telemetry.addData("z_tag",  z_tag);
-            telemetry.addData("Shooter State",  robot.shooter.getVelocity());
-            telemetry.addData("hood ",robot.hood.getPosition());
-            telemetry.addData("loop (ms)", "%.2f", loopTimer.milliseconds());
-            telemetry.addData("Velocity : ", robot.shooter.getVelocity());
-            telemetry.addData("HoodPos : ", robot.hood.getPosition());
-            telemetry.addData("tagID : ", tagID);
-            telemetry.addData("farFlag : ", farFlag);
-            telemetry.addData("nearFlag : ", nearFlag);
 
             telemetry.update();
         }

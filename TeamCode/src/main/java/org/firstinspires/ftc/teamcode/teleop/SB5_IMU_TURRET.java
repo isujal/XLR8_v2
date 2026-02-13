@@ -55,8 +55,8 @@ import org.opencv.core.Mat;
 import java.util.ArrayList;
 import java.util.List;
 
-@Config
-@TeleOp(name = "SB5 IMU", group = "ATELEOP")
+//@Config
+//@TeleOp(name = "SB5 IMU", group = "ATELEOP")
 public class SB5_IMU_TURRET extends LinearOpMode {
     private static RobotHardware robot=RobotHardware.getInstance();
 
